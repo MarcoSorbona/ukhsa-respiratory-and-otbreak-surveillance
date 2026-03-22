@@ -10,7 +10,7 @@ data/*.csv
 data/*.geojson
 
 # Outputs
-*.html
+# *.html
 *.pdf
 */_files/  # plotly temp files
 

@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.25">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Marco Sorbona, PhD">
+<meta name="dcterms.date" content="2026-03-01">
+
+<title>Local Authority Data Request – MMR Coverage</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="03_day3_data_request_files/libs/clipboard/clipboard.min.js"></script>
+<script src="03_day3_data_request_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="03_day3_data_request_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="03_day3_data_request_files/libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="03_day3_data_request_files/libs/quarto-html/popper.min.js"></script>
+<script src="03_day3_data_request_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="03_day3_data_request_files/libs/quarto-html/anchor.min.js"></script>
+<link href="03_day3_data_request_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="03_day3_data_request_files/libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="03_day3_data_request_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="03_day3_data_request_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="03_day3_data_request_files/libs/bootstrap/bootstrap-4d7f0bce1131f3e5f9547cd857cfbfc8.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="03_day3_data_request_files/libs/htmltools-fill-0.5.9/fill.css" rel="stylesheet">
+
+<script src="03_day3_data_request_files/libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+
+<link href="03_day3_data_request_files/libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet">
+
+<script src="03_day3_data_request_files/libs/datatables-binding-0.34.0/datatables.js"></script>
+
+<script src="03_day3_data_request_files/libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+
+<link href="03_day3_data_request_files/libs/dt-core-1.13.6/css/jquery.dataTables.min.css" rel="stylesheet">
+
+<link href="03_day3_data_request_files/libs/dt-core-1.13.6/css/jquery.dataTables.extra.css" rel="stylesheet">
+
+<script src="03_day3_data_request_files/libs/dt-core-1.13.6/js/jquery.dataTables.min.js"></script>
+
+<link href="03_day3_data_request_files/libs/crosstalk-1.2.2/css/crosstalk.min.css" rel="stylesheet">
+
+<script src="03_day3_data_request_files/libs/crosstalk-1.2.2/js/crosstalk.min.js"></script>
+
+<script src="03_day3_data_request_files/libs/plotly-binding-4.12.0/plotly.js"></script>
+
+<script src="03_day3_data_request_files/libs/typedarray-0.1/typedarray.min.js"></script>
+
+<link href="03_day3_data_request_files/libs/plotly-htmlwidgets-css-2.25.2/plotly-htmlwidgets.css" rel="stylesheet">
+
+<script src="03_day3_data_request_files/libs/plotly-main-2.25.2/plotly-latest.min.js"></script>
+
+
+
+</head>
+
+<body class="quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#task" id="toc-task" class="nav-link active" data-scroll-target="#task">Task</a></li>
+  <li><a href="#background-why-mmr-coverage-matters" id="toc-background-why-mmr-coverage-matters" class="nav-link" data-scroll-target="#background-why-mmr-coverage-matters">Background: Why MMR Coverage Matters</a></li>
+  <li><a href="#data-source" id="toc-data-source" class="nav-link" data-scroll-target="#data-source">Data Source</a></li>
+  <li><a href="#data-overview" id="toc-data-overview" class="nav-link" data-scroll-target="#data-overview">Data Overview</a></li>
+  <li><a href="#leicesters-story-peak-and-decline" id="toc-leicesters-story-peak-and-decline" class="nav-link" data-scroll-target="#leicesters-story-peak-and-decline">Leicester’s Story: Peak and Decline</a></li>
+  <li><a href="#annual-coverage-table" id="toc-annual-coverage-table" class="nav-link" data-scroll-target="#annual-coverage-table">Annual Coverage table</a></li>
+  <li><a href="#trend-visualisation" id="toc-trend-visualisation" class="nav-link" data-scroll-target="#trend-visualisation">Trend Visualisation</a></li>
+  <li><a href="#gap-to-target-chart" id="toc-gap-to-target-chart" class="nav-link" data-scroll-target="#gap-to-target-chart">Gap to Target Chart</a></li>
+  <li><a href="#benchmark-chart-latest-year" id="toc-benchmark-chart-latest-year" class="nav-link" data-scroll-target="#benchmark-chart-latest-year">Benchmark Chart (Latest Year)</a></li>
+  <li><a href="#summary-statistics-for-briefing" id="toc-summary-statistics-for-briefing" class="nav-link" data-scroll-target="#summary-statistics-for-briefing">Summary Statistics for Briefing</a></li>
+  <li><a href="#key-findings" id="toc-key-findings" class="nav-link" data-scroll-target="#key-findings">Key Findings</a></li>
+  <li><a href="#onepage-briefing-for-leicester-city-council" id="toc-onepage-briefing-for-leicester-city-council" class="nav-link" data-scroll-target="#onepage-briefing-for-leicester-city-council">One‑Page Briefing for Leicester City Council</a>
+  <ul class="collapse">
+  <li><a href="#mmr-vaccination-coverage-in-leicester-reversing-the-decline" id="toc-mmr-vaccination-coverage-in-leicester-reversing-the-decline" class="nav-link" data-scroll-target="#mmr-vaccination-coverage-in-leicester-reversing-the-decline">MMR Vaccination Coverage in Leicester: Reversing the Decline</a></li>
+  </ul></li>
+  <li><a href="#appendix-data-quality-notes" id="toc-appendix-data-quality-notes" class="nav-link" data-scroll-target="#appendix-data-quality-notes">Appendix: Data Quality Notes</a></li>
+  </ul>
+</nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Local Authority Data Request – MMR Coverage</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Marco Sorbona, PhD </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">March 1, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="task" class="level2">
+<h2 class="anchored" data-anchor-id="task">Task</h2>
+<p>Leicester City Council has requested data on <strong>MMR vaccination coverage</strong> to understand why rates have declined from previously high levels. They need:</p>
+<ol type="1">
+<li>Annual MMR coverage rates (age 2, one dose) for Leicester, East Midlands (average), and England (2010–2024)</li>
+<li>Comparison against the WHO 95% target</li>
+<li>Analysis of the decline from Leicester’s peak years</li>
+<li>A one‑page summary of key findings for their public health team</li>
+</ol>
+<p>This request tests the ability to respond to external stakeholders with timely, accurate data: a core UKHSA function.</p>
+</section>
+<section id="background-why-mmr-coverage-matters" class="level2">
+<h2 class="anchored" data-anchor-id="background-why-mmr-coverage-matters">Background: Why MMR Coverage Matters</h2>
+<p>Measles, mumps, and rubella (MMR) are highly infectious diseases that can cause serious complications. The World Health Organization recommends <strong>95% coverage</strong> for two doses of MMR vaccine to achieve herd immunity and prevent outbreaks.</p>
+<p>In recent years, the UK has seen measles outbreaks linked to declining vaccination rates. Understanding local trends is essential for targeting public health interventions.</p>
+</section>
+<section id="data-source" class="level2">
+<h2 class="anchored" data-anchor-id="data-source">Data Source</h2>
+<p>The data come from the <strong>Fingertips public health database</strong> (Indicator 30309 – MMR coverage for one dose by age 2). This is the same source used in Day 1, but for a different indicator, demonstrating the ability to work across multiple public health domains.</p>
+<p>Regional‑level data was not available for this indicator, so an <strong>East Midlands average</strong> was constructed from local authorities in the region to provide a meaningful benchmark.</p>
+</section>
+<section id="data-overview" class="level2">
+<h2 class="anchored" data-anchor-id="data-overview">Data Overview</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>mmr_data <span class="sc">|&gt;</span> </span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(geography) <span class="sc">|&gt;</span> </span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">min_coverage =</span> <span class="fu">min</span>(coverage),</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">mean_coverage =</span> <span class="fu">mean</span>(coverage),</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">max_coverage =</span> <span class="fu">max</span>(coverage),</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">latest_coverage =</span> coverage[year <span class="sc">==</span> <span class="fu">max</span>(year)]</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">where</span>(is.numeric), <span class="sc">~</span><span class="fu">round</span>(.,<span class="dv">1</span>))) <span class="sc">|&gt;</span> </span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(<span class="at">caption =</span> <span class="st">"MMR coverage summary by geography (2010 - 2024)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>MMR coverage summary by geography (2010 - 2024)</caption>
+<colgroup>
+<col style="width: 30%">
+<col style="width: 16%">
+<col style="width: 17%">
+<col style="width: 16%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">geography</th>
+<th style="text-align: right;">min_coverage</th>
+<th style="text-align: right;">mean_coverage</th>
+<th style="text-align: right;">max_coverage</th>
+<th style="text-align: right;">latest_coverage</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">East Midlands (average)</td>
+<td style="text-align: right;">89.2</td>
+<td style="text-align: right;">91.5</td>
+<td style="text-align: right;">94.4</td>
+<td style="text-align: right;">89.2</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">England</td>
+<td style="text-align: right;">88.9</td>
+<td style="text-align: right;">90.7</td>
+<td style="text-align: right;">92.7</td>
+<td style="text-align: right;">88.9</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Leicester</td>
+<td style="text-align: right;">87.7</td>
+<td style="text-align: right;">91.8</td>
+<td style="text-align: right;">95.8</td>
+<td style="text-align: right;">88.4</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p><strong>Rationale:</strong> Before diving into detailed analysis, it’s useful to see the big picture. This table shows the range, average, and most recent value for each geography, immediately highlighting that Leicester’s latest coverage is well below its historical peak.</p>
+</section>
+<section id="leicesters-story-peak-and-decline" class="level2">
+<h2 class="anchored" data-anchor-id="leicesters-story-peak-and-decline">Leicester’s Story: Peak and Decline</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>leicester_data <span class="ot">&lt;-</span> mmr_data <span class="sc">|&gt;</span> </span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(geography <span class="sc">==</span> <span class="st">"Leicester"</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>leicester_peak <span class="ot">&lt;-</span> leicester_data <span class="sc">|&gt;</span> </span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">peak_year =</span> year[<span class="fu">which.max</span>(coverage)],</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">peak_coverage =</span> <span class="fu">max</span>(coverage),</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">current_year =</span> <span class="fu">max</span>(year),</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">current_coverage =</span> coverage[year <span class="sc">==</span> <span class="fu">max</span>(year)],</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">decline =</span> peak_coverage <span class="sc">-</span> current_coverage</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>peak_year <span class="ot">&lt;-</span> leicester_peak<span class="sc">$</span>peak_year</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>peak_coverage <span class="ot">&lt;-</span> leicester_peak<span class="sc">$</span>peak_coverage</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>current_coverage <span class="ot">&lt;-</span> leicester_peak<span class="sc">$</span>current_coverage</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>decline <span class="ot">&lt;-</span> leicester_peak<span class="sc">$</span>decline</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Leicester achieved the WHO 95% target in <strong>2013</strong>, reaching <strong>95.8%</strong> coverage. Since then, coverage has fallen by <strong>7.4 percentage points</strong> to <strong>88.4%</strong> in 2024.</p>
+<p><strong>Rationale:</strong> Extracting these values programmatically ensures the narrative stays accurate even if the data updates. It also allows us to use them in plot annotations.</p>
+<hr>
+</section>
+<section id="annual-coverage-table" class="level2">
+<h2 class="anchored" data-anchor-id="annual-coverage-table">Annual Coverage table</h2>
+<div class="cell" data-tbl-cap="Annual MMR coverage (%) by geography">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create wide table for easy comparison</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>mmr_wide <span class="ot">&lt;-</span> mmr_data <span class="sc">|&gt;</span> </span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(year, geography, coverage) <span class="sc">|&gt;</span> </span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_from =</span> geography,</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_from =</span> coverage</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">diff_em =</span> <span class="fu">round</span>(<span class="st">`</span><span class="at">East Midlands (average)</span><span class="st">`</span> <span class="sc">-</span> England, <span class="dv">1</span>),</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">diff_leicester =</span> <span class="fu">round</span>(Leicester <span class="sc">-</span> England, <span class="dv">1</span>),</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">target_met =</span> <span class="fu">ifelse</span>(Leicester <span class="sc">&gt;=</span> <span class="dv">95</span>, <span class="st">"Met 95%"</span>, <span class="st">"Below 95%"</span>)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Display as interactive datatable</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="fu">datatable</span>(</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>  mmr_wide,</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">options =</span> <span class="fu">list</span>(</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">pagelength =</span> <span class="dv">15</span>,</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">scrollX =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">dom =</span> <span class="st">'Bfrtip'</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">caption =</span> <span class="st">"Annual MMR coverage by age 2 (%)"</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span> </span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">formatStyle</span>(</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Leicester"</span>,</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">backgroundColor =</span> <span class="fu">styleInterval</span>(<span class="fu">c</span>(<span class="dv">95</span>), <span class="fu">c</span>(<span class="st">"lightcoral"</span>, <span class="st">"lightgreen"</span>))</span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="datatables html-widget html-fill-item" id="htmlwidget-b620593630685b9fe1c2" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-b620593630685b9fe1c2">{"x":{"filter":"none","vertical":false,"caption":"<caption>Annual MMR coverage by age 2 (%)<\/caption>","data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15"],[2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024],[89.2,92.2,93.40000000000001,94.40000000000001,93.40000000000001,93,92.59999999999999,91.90000000000001,91.40000000000001,91.09999999999999,91,89.8,89.90000000000001,89.40000000000001,89.2],[89.09999999999999,91.2,92.3,92.7,92.3,91.90000000000001,91.59999999999999,91.2,90.3,90.59999999999999,90.3,89.2,89.3,88.90000000000001,88.90000000000001],[90.40000000000001,93,95.7,95.8,94.8,94.5,94,93.7,91.5,91.2,89.8,88.40000000000001,88.2,87.7,88.40000000000001],[0.1,1,1.1,1.7,1.1,1.1,1,0.7,1.1,0.5,0.7,0.6,0.6,0.5,0.3],[1.3,1.8,3.4,3.1,2.5,2.6,2.4,2.5,1.2,0.6,-0.5,-0.8,-1.1,-1.2,-0.5],["Below 95%","Below 95%","Met 95%","Met 95%","Below 95%","Below 95%","Below 95%","Below 95%","Below 95%","Below 95%","Below 95%","Below 95%","Below 95%","Below 95%","Below 95%"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>year<\/th>\n      <th>East Midlands (average)<\/th>\n      <th>England<\/th>\n      <th>Leicester<\/th>\n      <th>diff_em<\/th>\n      <th>diff_leicester<\/th>\n      <th>target_met<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pagelength":15,"scrollX":true,"dom":"Bfrtip","columnDefs":[{"className":"dt-right","targets":[1,2,3,4,5,6]},{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"year","targets":1},{"name":"East Midlands (average)","targets":2},{"name":"England","targets":3},{"name":"Leicester","targets":4},{"name":"diff_em","targets":5},{"name":"diff_leicester","targets":6},{"name":"target_met","targets":7}],"order":[],"autoWidth":false,"orderClasses":false,"rowCallback":"function(row, data, displayNum, displayIndex, dataIndex) {\nvar value=data[4]; $(this.api().cell(row, 4).node()).css({'background-color':isNaN(parseFloat(value)) ? '' : value <= 95 ? \"lightcoral\" : \"lightgreen\"});\n}"},"selection":{"mode":"multiple","selected":null,"target":"row","selectable":null}},"evals":["options.rowCallback"],"jsHooks":[]}</script>
+</div>
+</div>
+<p><strong>Rationale:</strong> A wide-format table allows readers to see all geographies side by side for each year. The interactive <code>DT</code> table adds sortability and searchability, useful for stakeholder exploration. Colour-coding highlights years where Leicester meets the target.</p>
+<p><strong>Explanation of steps:</strong></p>
+<ul>
+<li><p><code>pivot_wider()</code> converts from long to wide format</p></li>
+<li><p><code>mutate()</code> creates difference columns to quantify gaps</p></li>
+<li><p><code>formatStyle()</code> applies conditional formatting (green when ≥95%, coral when below)</p></li>
+</ul>
+<hr>
+</section>
+<section id="trend-visualisation" class="level2">
+<h2 class="anchored" data-anchor-id="trend-visualisation">Trend Visualisation</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create plot</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>p_trend <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  mmr_data,</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>( <span class="at">x =</span> year, <span class="at">y =</span> coverage, <span class="at">color =</span> geography)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">95</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"red"</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> peak_year, <span class="at">y =</span> peak_coverage <span class="sc">+</span> <span class="dv">1</span>,</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>           <span class="at">label =</span> <span class="fu">paste</span>(<span class="st">"Peak: "</span>, peak_coverage, <span class="st">"%"</span>), <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">"England"</span> <span class="ot">=</span> <span class="st">"#2c3e50"</span>,</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">"East Midlands (average)"</span> <span class="ot">=</span> <span class="st">"#e67e22"</span>,</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">"Leicester"</span> <span class="ot">=</span> <span class="st">"#3498db"</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  )) <span class="sc">+</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="fu">seq</span>(<span class="dv">2010</span>, <span class="dv">2024</span>, <span class="dv">2</span>)) <span class="sc">+</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">85</span>, <span class="dv">100</span>), <span class="at">labels =</span> <span class="cf">function</span>(x) <span class="fu">paste0</span>(x, <span class="st">"%"</span>)) <span class="sc">+</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"MMR vaccination coverage by age 2: Leicester's decline from target"</span>,</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="fu">paste</span>(<span class="st">"Leicester met the 95% target in"</span>, peak_year, </span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>                     <span class="st">"but has since fallen"</span>, <span class="fu">round</span>(decline, <span class="dv">1</span>), <span class="st">"points"</span>),</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Year"</span>,</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Coverage (%)"</span>,</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">""</span>,</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="st">"Red dashed line = WHO 95% target. East Midlands values are an average of local authorities."</span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"bottom"</span>,</span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>)</span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplotly</span>(p_trend, <span class="at">tooltip =</span> <span class="fu">c</span>(<span class="st">"year"</span>, <span class="st">"geography"</span>, <span class="st">"coverage"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="plotly html-widget html-fill-item" id="htmlwidget-c05f72f4546627b94bda" style="width:100%;height:464px;"></div>
+<script type="application/json" data-for="htmlwidget-c05f72f4546627b94bda">{"x":{"data":[{"x":[2009.3,2024.7],"y":[95,95],"text":"","type":"scatter","mode":"lines","line":{"width":1.8897637795275593,"color":"rgba(255,0,0,0.5)","dash":"dash"},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024],"y":[89.200000000000003,92.200000000000003,93.400000000000006,94.400000000000006,93.400000000000006,93,92.599999999999994,91.900000000000006,91.400000000000006,91.099999999999994,91,89.799999999999997,89.900000000000006,89.400000000000006,89.200000000000003],"text":["year: 2010<br />coverage: 89.2<br />geography: East Midlands (average)","year: 2011<br />coverage: 92.2<br />geography: East Midlands (average)","year: 2012<br />coverage: 93.4<br />geography: East Midlands (average)","year: 2013<br />coverage: 94.4<br />geography: East Midlands (average)","year: 2014<br />coverage: 93.4<br />geography: East Midlands (average)","year: 2015<br />coverage: 93.0<br />geography: East Midlands (average)","year: 2016<br />coverage: 92.6<br />geography: East Midlands (average)","year: 2017<br />coverage: 91.9<br />geography: East Midlands (average)","year: 2018<br />coverage: 91.4<br />geography: East Midlands (average)","year: 2019<br />coverage: 91.1<br />geography: East Midlands (average)","year: 2020<br />coverage: 91.0<br />geography: East Midlands (average)","year: 2021<br />coverage: 89.8<br />geography: East Midlands (average)","year: 2022<br />coverage: 89.9<br />geography: East Midlands (average)","year: 2023<br />coverage: 89.4<br />geography: East Midlands (average)","year: 2024<br />coverage: 89.2<br />geography: East Midlands (average)"],"type":"scatter","mode":"lines+markers","line":{"width":3.7795275590551185,"color":"rgba(230,126,34,1)","dash":"solid"},"hoveron":"points","name":"East Midlands (average)","legendgroup":"East Midlands (average)","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","marker":{"autocolorscale":false,"color":"rgba(230,126,34,1)","opacity":1,"size":7.559055118110237,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(230,126,34,1)"}},"frame":null},{"x":[2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024],"y":[89.099999999999994,91.200000000000003,92.299999999999997,92.700000000000003,92.299999999999997,91.900000000000006,91.599999999999994,91.200000000000003,90.299999999999997,90.599999999999994,90.299999999999997,89.200000000000003,89.299999999999997,88.900000000000006,88.900000000000006],"text":["year: 2010<br />coverage: 89.1<br />geography: England","year: 2011<br />coverage: 91.2<br />geography: England","year: 2012<br />coverage: 92.3<br />geography: England","year: 2013<br />coverage: 92.7<br />geography: England","year: 2014<br />coverage: 92.3<br />geography: England","year: 2015<br />coverage: 91.9<br />geography: England","year: 2016<br />coverage: 91.6<br />geography: England","year: 2017<br />coverage: 91.2<br />geography: England","year: 2018<br />coverage: 90.3<br />geography: England","year: 2019<br />coverage: 90.6<br />geography: England","year: 2020<br />coverage: 90.3<br />geography: England","year: 2021<br />coverage: 89.2<br />geography: England","year: 2022<br />coverage: 89.3<br />geography: England","year: 2023<br />coverage: 88.9<br />geography: England","year: 2024<br />coverage: 88.9<br />geography: England"],"type":"scatter","mode":"lines+markers","line":{"width":3.7795275590551185,"color":"rgba(44,62,80,1)","dash":"solid"},"hoveron":"points","name":"England","legendgroup":"England","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","marker":{"autocolorscale":false,"color":"rgba(44,62,80,1)","opacity":1,"size":7.559055118110237,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(44,62,80,1)"}},"frame":null},{"x":[2010,2011,2012,2013,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024],"y":[90.400000000000006,93,95.700000000000003,95.799999999999997,94.799999999999997,94.5,94,93.700000000000003,91.5,91.200000000000003,89.799999999999997,88.400000000000006,88.200000000000003,87.700000000000003,88.400000000000006],"text":["year: 2010<br />coverage: 90.4<br />geography: Leicester","year: 2011<br />coverage: 93.0<br />geography: Leicester","year: 2012<br />coverage: 95.7<br />geography: Leicester","year: 2013<br />coverage: 95.8<br />geography: Leicester","year: 2014<br />coverage: 94.8<br />geography: Leicester","year: 2015<br />coverage: 94.5<br />geography: Leicester","year: 2016<br />coverage: 94.0<br />geography: Leicester","year: 2017<br />coverage: 93.7<br />geography: Leicester","year: 2018<br />coverage: 91.5<br />geography: Leicester","year: 2019<br />coverage: 91.2<br />geography: Leicester","year: 2020<br />coverage: 89.8<br />geography: Leicester","year: 2021<br />coverage: 88.4<br />geography: Leicester","year: 2022<br />coverage: 88.2<br />geography: Leicester","year: 2023<br />coverage: 87.7<br />geography: Leicester","year: 2024<br />coverage: 88.4<br />geography: Leicester"],"type":"scatter","mode":"lines+markers","line":{"width":3.7795275590551185,"color":"rgba(52,152,219,1)","dash":"solid"},"hoveron":"points","name":"Leicester","legendgroup":"Leicester","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","marker":{"autocolorscale":false,"color":"rgba(52,152,219,1)","opacity":1,"size":7.559055118110237,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(52,152,219,1)"}},"frame":null},{"x":[2013],"y":[96.799999999999997],"text":"Peak:  95.8 %","hovertext":"","textfont":{"size":11.338582677165356,"color":"rgba(0,0,0,1)"},"type":"scatter","mode":"text","hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":40.840182648401829,"r":7.3059360730593621,"b":39.301911110976633,"l":48.949771689497723},"paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724},"title":{"text":"MMR vaccination coverage by age 2: Leicester's decline from target","font":{"color":"rgba(0,0,0,1)","family":"","size":17.534246575342465},"x":0,"xref":"paper"},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[2009.3,2024.7],"tickmode":"array","ticktext":["2010","2012","2014","2016","2018","2020","2022","2024"],"tickvals":[2010,2012,2014,2016,2018,2020,2022,2024],"categoryorder":"array","categoryarray":["2010","2012","2014","2016","2018","2020","2022","2024"],"nticks":null,"ticks":"","tickcolor":null,"ticklen":3.6529680365296811,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.68949771689498},"tickangle":-45,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0.66417600664176002,"zeroline":false,"anchor":"y","title":{"text":"Year","font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[84.25,100.75],"tickmode":"array","ticktext":["85%","90%","95%","100%"],"tickvals":[85,90,95,100],"categoryorder":"array","categoryarray":["85%","90%","95%","100%"],"nticks":null,"ticks":"","tickcolor":null,"ticklen":3.6529680365296811,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.68949771689498},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0.66417600664176002,"zeroline":false,"anchor":"x","title":{"text":"Coverage (%)","font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724}},"hoverformat":".2f"},"shapes":[],"showlegend":true,"legend":{"bgcolor":null,"bordercolor":null,"borderwidth":0,"font":{"color":"rgba(0,0,0,1)","family":"","size":11.68949771689498},"orientation":"h","x":0.5,"y":-0.14999999999999999,"xanchor":"center","yanchor":"top","title":{"text":"","font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724}}},"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"source":"A","attrs":{"1f405075714a":{"yintercept":{},"type":"scatter"},"1f40114b5b78":{"x":{},"y":{},"colour":{}},"1f40295779b7":{"x":{},"y":{},"colour":{}},"1f405d0e6e57":{"x":{},"y":{}}},"cur_data":"1f405075714a","visdat":{"1f405075714a":["function (y) ","x"],"1f40114b5b78":["function (y) ","x"],"1f40295779b7":["function (y) ","x"],"1f405d0e6e57":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<p>MMR coverage: Leicester’s rise and fall</p>
+</div>
+</div>
+<p><strong>Rationale:</strong> A line chart is the standard way to show trends over time. This plot tells Leicester’s story visually:</p>
+<ul>
+<li><p>The red dashed line shows the target</p></li>
+<li><p>Leicester’s line (blue) rises above it in 2012–14, then steadily declines</p></li>
+<li><p>The regional (orange) and national (grey) lines provide context</p></li>
+<li><p>The annotation highlights the peak year</p></li>
+</ul>
+<p><strong>Explanation of layers:</strong></p>
+<ul>
+<li><p><code>geom_hline()</code> adds the WHO target line</p></li>
+<li><p><code>geom_line()</code> and <code>geom_point()</code> show the data</p></li>
+<li><p><code>annotate()</code> adds a text label at the peak</p></li>
+<li><p><code>scale_color_manual()</code> sets consistent, accessible colours</p></li>
+<li><p><code>ggplotly()</code> makes the plot interactive (hover to see exact values)</p></li>
+</ul>
+<hr>
+</section>
+<section id="gap-to-target-chart" class="level2">
+<h2 class="anchored" data-anchor-id="gap-to-target-chart">Gap to Target Chart</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>gap_data <span class="ot">&lt;-</span> mmr_wide <span class="sc">|&gt;</span> </span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(year, Leicester) <span class="sc">|&gt;</span> </span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">gap_to_target =</span> <span class="fu">round</span>(<span class="dv">95</span> <span class="sc">-</span> Leicester, <span class="dv">1</span>),</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">above_target =</span> gap_to_target <span class="sc">&lt;=</span> <span class="dv">0</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>p_gap <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  gap_data,</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> year, <span class="at">y =</span> gap_to_target, <span class="at">fill =</span> above_target)</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">width =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"grey50"</span>) <span class="sc">+</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"TRUE"</span> <span class="ot">=</span> <span class="st">"#2ecc71"</span>, <span class="st">"FALSE"</span> <span class="ot">=</span> <span class="st">"#e74c3c"</span>)) <span class="sc">+</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="fu">seq</span>(<span class="dv">2010</span>, <span class="dv">2024</span>,<span class="dv">2</span>)) <span class="sc">+</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> <span class="cf">function</span>(x) <span class="fu">paste0</span>(x, <span class="st">"%"</span>)) <span class="sc">+</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Leicester: gap to WHO 95% target"</span>,</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Positive values indicate coverage below target. Leicester met the target in 2012-14."</span>,</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Year"</span>,</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Gap to 95% target (percentage points)"</span>,</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> <span class="st">"Above target:"</span></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"bottom"</span>,</span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>)</span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplotly</span>(p_gap, <span class="at">tooltip =</span> <span class="fu">c</span>(<span class="st">"year"</span>, <span class="st">"gap_to_target"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="plotly html-widget html-fill-item" id="htmlwidget-0de5efbbc620eb044d0a" style="width:100%;height:464px;"></div>
+<script type="application/json" data-for="htmlwidget-0de5efbbc620eb044d0a">{"x":{"data":[{"orientation":"v","width":[0.6999999999998181,0.6999999999998181,0.6999999999998181,0.6999999999998181,0.6999999999998181,0.6999999999998181,0.6999999999998181,0.6999999999998181,0.6999999999998181,0.6999999999998181,0.6999999999998181,0.6999999999998181,0.6999999999998181],"base":[0,0,0,0,0,0,0,0,0,0,0,0,0],"x":[2010,2011,2014,2015,2016,2017,2018,2019,2020,2021,2022,2023,2024],"y":[4.5999999999999996,2,0.20000000000000001,0.5,1,1.3,3.5,3.7999999999999998,5.2000000000000002,6.5999999999999996,6.7999999999999998,7.2999999999999998,6.5999999999999996],"text":["year: 2010<br />gap_to_target:  4.6","year: 2011<br />gap_to_target:  2.0","year: 2014<br />gap_to_target:  0.2","year: 2015<br />gap_to_target:  0.5","year: 2016<br />gap_to_target:  1.0","year: 2017<br />gap_to_target:  1.3","year: 2018<br />gap_to_target:  3.5","year: 2019<br />gap_to_target:  3.8","year: 2020<br />gap_to_target:  5.2","year: 2021<br />gap_to_target:  6.6","year: 2022<br />gap_to_target:  6.8","year: 2023<br />gap_to_target:  7.3","year: 2024<br />gap_to_target:  6.6"],"type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(231,76,60,1)","line":{"width":1.8897637795275593,"color":"transparent"}},"name":"FALSE","legendgroup":"FALSE","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":[0.6999999999998181,0.6999999999998181],"base":[-0.69999999999999996,-0.80000000000000004],"x":[2012,2013],"y":[0.69999999999999996,0.80000000000000004],"text":["year: 2012<br />gap_to_target: -0.7","year: 2013<br />gap_to_target: -0.8"],"type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(46,204,113,1)","line":{"width":1.8897637795275593,"color":"transparent"}},"name":"TRUE","legendgroup":"TRUE","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[2008.9150000000002,2025.0849999999998],"y":[0,0],"text":"","type":"scatter","mode":"lines","line":{"width":1.8897637795275593,"color":"rgba(127,127,127,1)","dash":"dash"},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":40.840182648401829,"r":7.3059360730593621,"b":39.301911110976633,"l":37.260273972602747},"paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724},"title":{"text":"Leicester: gap to WHO 95% target","font":{"color":"rgba(0,0,0,1)","family":"","size":17.534246575342465},"x":0,"xref":"paper"},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[2008.9150000000002,2025.0849999999998],"tickmode":"array","ticktext":["2010","2012","2014","2016","2018","2020","2022","2024"],"tickvals":[2010,2012,2014,2016,2018,2020,2022,2024],"categoryorder":"array","categoryarray":["2010","2012","2014","2016","2018","2020","2022","2024"],"nticks":null,"ticks":"","tickcolor":null,"ticklen":3.6529680365296811,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.68949771689498},"tickangle":-45,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0.66417600664176002,"zeroline":false,"anchor":"y","title":{"text":"Year","font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-1.2050000000000001,7.7050000000000001],"tickmode":"array","ticktext":["0%","2%","4%","6%"],"tickvals":[0,2.0000000000000004,4,6],"categoryorder":"array","categoryarray":["0%","2%","4%","6%"],"nticks":null,"ticks":"","tickcolor":null,"ticklen":3.6529680365296811,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.68949771689498},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0.66417600664176002,"zeroline":false,"anchor":"x","title":{"text":"Gap to 95% target (percentage points)","font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724}},"hoverformat":".2f"},"shapes":[],"showlegend":true,"legend":{"bgcolor":null,"bordercolor":null,"borderwidth":0,"font":{"color":"rgba(0,0,0,1)","family":"","size":11.68949771689498},"orientation":"h","x":0.5,"y":-0.14999999999999999,"xanchor":"center","yanchor":"top","title":{"text":"Above target:","font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724}}},"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"source":"A","attrs":{"1f40354d1e8a":{"x":{},"y":{},"fill":{},"type":"bar"},"1f40bd02438":{"yintercept":{}}},"cur_data":"1f40354d1e8a","visdat":{"1f40354d1e8a":["function (y) ","x"],"1f40bd02438":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<p>Leicester: gap to WHO 95% target</p>
+</div>
+</div>
+<p><strong>Rationale:</strong> This chart focuses specifically on Leicester’s performance relative to the target. Bars above zero show years below target; bars below zero (green) show years above target. This makes the magnitude and duration of the deficit immediately visible.</p>
+<p><strong>Explanation:</strong></p>
+<ul>
+<li><p><code>gap_to_target = 95 - Leicester</code> (positive = below target)</p></li>
+<li><p><code>above_target = gap_to_target &lt;= 0</code> (flags years meeting/exceeding target)</p></li>
+<li><p>Green bars = meeting target, red bars = below target</p></li>
+</ul>
+<hr>
+</section>
+<section id="benchmark-chart-latest-year" class="level2">
+<h2 class="anchored" data-anchor-id="benchmark-chart-latest-year">Benchmark Chart (Latest Year)</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>latest_year <span class="ot">&lt;-</span> <span class="fu">max</span>(mmr_data<span class="sc">$</span>year)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Get latest data for all East Midlands authorities</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>latest_em <span class="ot">&lt;-</span> em_authorities <span class="sc">|&gt;</span> </span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">str_detect</span>(Timeperiod, <span class="fu">as.character</span>(latest_year))) <span class="sc">|&gt;</span> </span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(Value)) <span class="sc">|&gt;</span> </span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(AreaName, <span class="at">coverage =</span> Value) <span class="sc">|&gt;</span> </span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">coverage =</span> <span class="fu">round</span>(coverage, <span class="dv">1</span>)</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_row</span>(<span class="at">AreaName =</span> <span class="st">"Leicester"</span>, <span class="at">coverage =</span> current_coverage) <span class="sc">|&gt;</span> </span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">distinct</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(coverage))</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Highlight Leicester</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>p_benchmark <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>  latest_em, </span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder</span>(AreaName, coverage), <span class="at">y =</span> coverage, <span class="at">fill =</span> AreaName <span class="sc">==</span> <span class="st">"Leicester"</span>)</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>) <span class="sc">+</span></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">95</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"red"</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>() <span class="sc">+</span></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">label =</span> <span class="fu">paste0</span>(coverage, <span class="st">"%"</span>)),</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">hjust =</span> <span class="sc">-</span><span class="fl">0.1</span></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"TRUE"</span> <span class="ot">=</span> <span class="st">"#3498db"</span>, <span class="st">"FALSE"</span> <span class="ot">=</span> <span class="st">"grey70"</span>)) <span class="sc">+</span></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">limits =</span> <span class="fu">c</span> (<span class="dv">0</span>, <span class="dv">100</span>), <span class="at">labels =</span> <span class="cf">function</span>(x) <span class="fu">paste0</span>(x, <span class="st">"%"</span>)) <span class="sc">+</span></span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="fu">paste</span>(<span class="st">"MMR coverage in East Midlands ("</span>, latest_year, <span class="st">")"</span>, <span class="at">sep =</span> <span class="st">""</span>),</span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Leicester highlighted in blue. Red line = WHO 95% target"</span>,</span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">""</span>,</span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Coverage (%)"</span>,</span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> <span class="st">""</span></span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)</span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplotly</span>(p_benchmark, <span class="at">tooltip =</span> <span class="fu">c</span>(<span class="st">"AreaName"</span>, <span class="st">"coverage"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="plotly html-widget html-fill-item" id="htmlwidget-61dcc1f1f2b8b92f6d1b" style="width:100%;height:464px;"></div>
+<script type="application/json" data-for="htmlwidget-61dcc1f1f2b8b92f6d1b">{"x":{"data":[{"x":[95,95],"y":[0.40000000000000002,6.5999999999999996],"text":"","type":"scatter","mode":"lines","line":{"width":1.8897637795275593,"color":"rgba(255,0,0,0.5)","dash":"dash"},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"h","width":[0.90000000000000036,0.90000000000000036,0.90000000000000036,0.90000000000000036,0.89999999999999991],"base":[0,0,0,0,0],"x":[94.099999999999994,91.799999999999997,90.299999999999997,89,81.900000000000006],"y":[6,5,4,3,1],"text":["coverage: 94.1","coverage: 91.8","coverage: 90.3","coverage: 89.0","coverage: 81.9"],"type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(179,179,179,1)","line":{"width":1.8897637795275593,"color":"transparent"}},"name":"FALSE","legendgroup":"FALSE","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"h","width":0.90000000000000013,"base":0,"x":[88.400000000000006],"y":[2],"text":"coverage: 88.4","type":"bar","textposition":"none","marker":{"autocolorscale":false,"color":"rgba(52,152,219,1)","line":{"width":1.8897637795275593,"color":"transparent"}},"name":"TRUE","legendgroup":"TRUE","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[94.099999999999994,91.799999999999997,90.299999999999997,89,81.900000000000006],"y":[6,5,4,3,1],"text":["94.1%","91.8%","90.3%","89%","81.9%"],"hovertext":["coverage: 94.1","coverage: 91.8","coverage: 90.3","coverage: 89.0","coverage: 81.9"],"textfont":{"size":14.611872146118722,"color":"rgba(0,0,0,1)"},"type":"scatter","mode":"text","hoveron":"points","name":"FALSE","legendgroup":"FALSE","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[88.400000000000006],"y":[2],"text":"88.4%","hovertext":"coverage: 88.4","textfont":{"size":14.611872146118722,"color":"rgba(0,0,0,1)"},"type":"scatter","mode":"text","hoveron":"points","name":"TRUE","legendgroup":"TRUE","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":40.840182648401829,"r":7.3059360730593621,"b":37.260273972602747,"l":98.630136986301395},"paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724},"title":{"text":"MMR coverage in East Midlands (2024)","font":{"color":"rgba(0,0,0,1)","family":"","size":17.534246575342465},"x":0,"xref":"paper"},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-5,105],"tickmode":"array","ticktext":["0%","25%","50%","75%","100%"],"tickvals":[0,24.999999999999996,50,75,100],"categoryorder":"array","categoryarray":["0%","25%","50%","75%","100%"],"nticks":null,"ticks":"","tickcolor":null,"ticklen":3.6529680365296811,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.68949771689498},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0.66417600664176002,"zeroline":false,"anchor":"y","title":{"text":"Coverage (%)","font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.40000000000000002,6.5999999999999996],"tickmode":"array","ticktext":["Nottingham","Leicester","Derby","Lincolnshire","Nottinghamshire","Leicestershire"],"tickvals":[1,2,3,3.9999999999999996,5,6],"categoryorder":"array","categoryarray":["Nottingham","Leicester","Derby","Lincolnshire","Nottinghamshire","Leicestershire"],"nticks":null,"ticks":"","tickcolor":null,"ticklen":3.6529680365296811,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.68949771689498},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0.66417600664176002,"zeroline":false,"anchor":"x","title":{"text":"","font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724}},"hoverformat":".2f"},"shapes":[],"showlegend":false,"legend":{"bgcolor":null,"bordercolor":null,"borderwidth":0,"font":{"color":"rgba(0,0,0,1)","family":"","size":11.68949771689498}},"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"source":"A","attrs":{"1f4066345d40":{"yintercept":{},"type":"scatter"},"1f4054705114":{"x":{},"y":{},"fill":{}},"1f40efc6a77":{"x":{},"y":{},"fill":{},"label":{}}},"cur_data":"1f4066345d40","visdat":{"1f4066345d40":["function (y) ","x"],"1f4054705114":["function (y) ","x"],"1f40efc6a77":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<p>East Midlands local authorities: MMR coverage (latest year)</p>
+</div>
+</div>
+<p><strong>Rationale:</strong> This chart shows how Leicester compares to other local authorities in the East Midlands in the most recent year. It answers the question: “Is Leicester’s problem unique, or are neighbouring areas also struggling?”</p>
+<p><strong>Explanation:</strong></p>
+<ul>
+<li><p><code>reorder(AreaName, coverage)</code> sorts bars by coverage (highest to lowest)</p></li>
+<li><p>Leicester is highlighted in blue for easy identification</p></li>
+<li><p>The red dashed line shows the WHO target</p></li>
+<li><p><code>coord_flip()</code> makes area names readable</p></li>
+</ul>
+<hr>
+</section>
+<section id="summary-statistics-for-briefing" class="level2">
+<h2 class="anchored" data-anchor-id="summary-statistics-for-briefing">Summary Statistics for Briefing</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>latest_england <span class="ot">&lt;-</span> mmr_data <span class="sc">|&gt;</span> </span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(geography <span class="sc">==</span> <span class="st">"England"</span>, year <span class="sc">==</span> latest_year) <span class="sc">|&gt;</span> </span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pull</span>(coverage)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>latest_em <span class="ot">&lt;-</span> mmr_data <span class="sc">|&gt;</span> </span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(geography <span class="sc">==</span> <span class="st">"East Midlands (average)"</span>, year <span class="sc">==</span> latest_year) <span class="sc">|&gt;</span> </span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pull</span>(coverage)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Years below target in last 5 years</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>recent_below <span class="ot">&lt;-</span> mmr_wide <span class="sc">|&gt;</span> </span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(year <span class="sc">&gt;=</span> <span class="dv">2020</span>, Leicester <span class="sc">&lt;</span> <span class="dv">95</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">nrow</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><strong>Rationale:</strong> These values are extracted programmatically so they can be inserted into the narrative text below. This ensures consistency between the text and the data.</p>
+<hr>
+</section>
+<section id="key-findings" class="level2">
+<h2 class="anchored" data-anchor-id="key-findings">Key Findings</h2>
+<p>The analysis shows:</p>
+<ul>
+<li><strong>Leicester achieved the WHO 95% target in 2012–14</strong>, reaching a peak of 95.8%</li>
+<li>Since then, coverage has <strong>declined by 7.4 percentage points</strong> to 88.4% in 2024</li>
+<li>Leicester is now <strong>6.6 points below the target</strong></li>
+<li>This compares to 89.2% in the East Midlands (average) and 88.9% in England</li>
+<li>In the last 5 years, Leicester has been <strong>below target in all 5 years</strong></li>
+</ul>
+</section>
+<section id="onepage-briefing-for-leicester-city-council" class="level2">
+<h2 class="anchored" data-anchor-id="onepage-briefing-for-leicester-city-council">One‑Page Briefing for Leicester City Council</h2>
+<hr>
+<section id="mmr-vaccination-coverage-in-leicester-reversing-the-decline" class="level3">
+<h3 class="anchored" data-anchor-id="mmr-vaccination-coverage-in-leicester-reversing-the-decline">MMR Vaccination Coverage in Leicester: Reversing the Decline</h3>
+<p><strong>Date:</strong> March 2026<br>
+<strong>Prepared by:</strong> Marco Sorbona<br>
+<strong>Data source:</strong> Fingertips public health database (Indicator 30309 – MMR coverage by age 2)</p>
+<section id="key-messages" class="level4">
+<h4 class="anchored" data-anchor-id="key-messages">Key Messages</h4>
+<ul>
+<li>Leicester <strong>met the WHO 95% target in 2012–14</strong>, reaching 95.8% coverage</li>
+<li>Since then, coverage has <strong>fallen by 7.4 percentage points</strong> to 88.4% in 2024</li>
+<li>Leicester is now <strong>6.6 points below the target</strong> and ranks in the lower half of East Midlands authorities</li>
+<li>The decline has been <strong>sustained over a decade</strong>, not a one‑year drop</li>
+</ul>
+</section>
+<section id="why-this-matters" class="level4">
+<h4 class="anchored" data-anchor-id="why-this-matters">Why This Matters</h4>
+<p>Leicester has <strong>proved it can achieve high coverage</strong>. The question is: what changed? Possible factors include: - Changes in local service delivery - Vaccine hesitancy trends - Population churn and access issues - Post‑pandemic disruption to routine immunisation</p>
+<p>Understanding why coverage fell after 2014 is essential to designing effective recovery strategies.</p>
+</section>
+<section id="recommendations" class="level4">
+<h4 class="anchored" data-anchor-id="recommendations">Recommendations</h4>
+<ol type="1">
+<li><strong>Investigate local factors</strong> – compare 2012–14 (peak) to now: what was different in service delivery, outreach, and messaging?</li>
+<li><strong>Targeted catch‑up campaigns</strong> for children born during the decline years</li>
+<li><strong>Peer learning</strong> – identify East Midlands authorities maintaining higher coverage and understand their practices</li>
+<li><strong>Monitor monthly</strong> rather than annually to detect early warning signs</li>
+</ol>
+</section>
+<section id="limitations" class="level4">
+<h4 class="anchored" data-anchor-id="limitations">Limitations</h4>
+<ul>
+<li>Data are for age 2 only; coverage at age 5 (second dose) may differ</li>
+<li>Small numbers in some years may cause volatility</li>
+<li>COVID‑19 disrupted both vaccination services and data collection in 2020–2021</li>
+<li>East Midlands values are an average of local authorities, not an official regional statistic</li>
+</ul>
+<hr>
+</section>
+</section>
+</section>
+<section id="appendix-data-quality-notes" class="level2">
+<h2 class="anchored" data-anchor-id="appendix-data-quality-notes">Appendix: Data Quality Notes</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Indicator: 30309 – MMR for one dose at age 2</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Source: Fingertips / UKHSA</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Geography: Leicester City (UA), East Midlands (average of local authorities), England</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Time period: 2010-2024</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Peak years: 2012-2014 when Leicester exceeded 95%</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Current: 88.4% in 2024</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
