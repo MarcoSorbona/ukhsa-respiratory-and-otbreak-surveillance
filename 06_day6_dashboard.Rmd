@@ -1,0 +1,624 @@
+---
+title: "Respiratory Health Surveillance Dashboard"
+author: "Marco Sorbona, PhD"
+date: "March 2026"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    vertical_layout: fill
+    theme: cosmo
+    source_code: embed
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(tidyverse)
+library(plotly)
+library(DT)
+library(scales)
+library(knitr)
+library(geographr)
+library(leaflet)
+
+# Load data from previous days
+respiratory_data <- readRDS("data/respiratory_data.rds") |> 
+  filter(sex == "Persons") # Use overall rates only
+north_south_data <- readRDS("data/north_south_data.rds")
+mmr_data <- readRDS("data/mmr_data.rds")
+cdiff_data <- readRDS("data/cdiff_data.rds")
+
+# Load region boundaries
+region_sf <- boundaries_region21
+
+# Calculate key metrics
+latest_year <- max(respiratory_data$year, na.rm = TRUE)
+
+# Latest England rate
+england_latest <- respiratory_data |> 
+  filter(region == "England", year == latest_year) |> 
+  pull(value) |> 
+  first()
+
+england_display <- paste0(round(england_latest, 1), "/100k")
+
+# North-South difference
+north_mean <- north_south_data |> 
+  filter(region_group == "North") |> 
+  pull(mortality_rate) |> 
+  mean(na.rm = TRUE)
+
+south_mean <- north_south_data |> 
+  filter(region_group == "South") |> 
+  pull(mortality_rate) |> 
+  mean(na.rm = TRUE)
+
+north_south_diff <- north_mean - south_mean
+diff_display <- paste0("+", round(north_south_diff, 1), "/100k")
+
+# Leicester MMR latest
+leicester_mmr <- mmr_data |> 
+  filter(geography == "Leicester", year == latest_year) |> 
+  pull(coverage) |> 
+  first()
+
+mmr_display <- paste0(round(leicester_mmr, 1), " %")
+mmr_color <- ifelse(leicester_mmr >= 95, "success", "warning")
+```
+
+# Overview {.tabset}
+
+### Key Metrics
+
+```{r}
+# Create a simple data frame of metrics
+metrics_table <- data.frame(
+  Metric = c(
+    "England respiratory mortality",
+    "North vs South difference",
+    "Leicester MMR coverage",
+    "C. difficile alert rate"
+  ),
+  Value = c(
+    paste0(round(england_latest, 1), " per 100k"),
+    paste0("+", round(north_south_diff, 1), " per 100k"),
+    paste0(round(leicester_mmr, 1), "%"),
+    "80%"
+  ),
+  Year = c(
+    latest_year,
+    "2001–2024",
+    latest_year,
+    "2024"
+  )
+)
+
+knitr::kable(metrics_table, caption = "Key Metrics")
+```
+
+### Data Summary
+
+```{r}
+# Create summary table of all datasets
+data_summary <- data.frame(
+  Dataset = c(
+    "Respiratory Mortality",
+    "North-South Grouped",
+    "MMR Coverage",
+    "C. difficile"
+  ),
+  `Time Period` = c(
+    "2001-2024",
+    "2001-2024",
+    "2010-2024",
+    "2023-2024"
+  ),
+  Geography = c(
+    "England regions",
+    "North vs South",
+    "Leicester, East Midlands, England",
+    "UKHSA regions"
+  ),
+  `Key Indicator` = c(
+    "Rate per 100,000",
+    "Rate per 100,000",
+    "Percentage",
+    "Weekly cases"
+  ),
+  check.names = FALSE
+)
+
+datatable(
+  data_summary,
+  options = list(
+    pageLength = 5,
+    dom = 't',
+    searching = FALSE,
+    paging = FALSE
+  ),
+  rownames = FALSE,
+  class = "cell-border stripe hover"
+)
+```
+
+------------------------------------------------------------------------
+
+# Respiratory Mortality
+
+### Time Series
+
+```{r}
+#| fig-height: 400
+
+
+# Calculate regional summary for plot
+regional_summary <- respiratory_data |> 
+  mutate(
+    region = str_remove(region, " region \\(statistical\\)")
+    ) |> 
+  group_by(region, year) |> 
+  summarise(
+    avg_rate = mean(value, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+p_ts <- ggplot(
+  regional_summary,
+  aes(x = year, y = avg_rate, color = region,
+      text = paste("Region: ", region,
+                   "<br>Year: ", year,
+                    "<br>Rate: ", round(avg_rate, 1)))
+) +
+  geom_line(aes(group = region), linewidth = 0.8) +
+  geom_point(size = 1) +
+  scale_colour_viridis_d() +
+  labs(
+    title = "Respiratory mortality trends by region",
+    x = "Year",
+    y = "Rate per 100,000",
+    color = ""
+  ) +
+    theme_minimal() +
+    theme(legend.position = "bottom")
+
+ggplotly(p_ts, tooltip = "text") |> 
+  layout(
+    legend = list(
+      orientation = "h", 
+      xanchor = "center", 
+      x = 0.5, 
+      y = -0.2, 
+      font = list(size = 10)))
+```
+
+### Regional Map
+
+```{r}
+#| fig-height: 400
+
+
+latest_year <- max(respiratory_data$year, na.rm = TRUE)
+latest_regional <- respiratory_data |> 
+  filter(year == latest_year) |> 
+  mutate(
+    region = str_remove(region, " region \\(statistical\\)")
+  ) |> 
+  arrange(desc(value))
+
+p_rm <- ggplot(
+  latest_regional,
+  aes(x = reorder(region, value), y = value, fill = region)
+) +
+  geom_col() +
+  coord_flip() +
+  scale_fill_viridis_d() +
+  labs(
+    title = paste("Respiratory mortality by region (", latest_year, ")", sep = ""),
+    x = "",
+    y = "Rate per 100,000"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+ggplotly(p_rm, tooltip = "text")
+```
+
+------------------------------------------------------------------------
+
+# Map
+
+### Respiratory Morality Interactive Map
+
+```{r}
+latest_year <- max(respiratory_data$year, na.rm = TRUE)
+
+# Join mortality data with boundaries
+map_data <- region_sf |>
+  mutate(
+    region_clean = str_remove(region21_name, " region \\(statistical\\)")
+  ) |>
+  left_join(
+    respiratory_data |>
+      filter(year == latest_year) |>
+      select(region, value) |>
+      mutate(
+        region_clean = str_remove(region, " region \\(statistical\\)")
+      ),
+    by = "region_clean"
+  )
+
+# Create color palette
+pal <- colorNumeric(
+  palette = "viridis",
+  domain = map_data$value,
+  na.color = "#808080"
+)
+
+# Create interactive map
+leaflet(map_data) |>
+  addTiles() |>
+  addPolygons(
+    fillColor = ~pal(value),
+    weight = 1,
+    opacity = 1,
+    color = "white",
+    fillOpacity = 0.7,
+    highlightOptions = highlightOptions(
+      weight = 3,
+      color = "#666",
+      fillOpacity = 0.9,
+      bringToFront = TRUE
+    ),
+    label = ~paste0(
+      region21_name, ": ",
+      round(value, 1), " per 100,000"
+    ),
+    labelOptions = labelOptions(
+      style = list("font-weight" = "normal", padding = "3px 8px"),
+      textsize = "10px",
+      direction = "auto"
+    )
+  ) |>
+  addLegend(
+    pal = pal,
+    values = ~value,
+    opacity = 0.7,
+    title = paste0(latest_year, " mortality rate<br>per 100,000"),
+    position = "bottomright"
+  ) |>
+  setView(lng = -2.5, lat = 53.5, zoom = 6)
+```
+
+------------------------------------------------------------------------
+
+# C. difficile Surveillance
+
+### Outbreak Detection
+
+```{r}
+
+hospital_cases <- cdiff_data |> 
+  filter(onset_type == "Hospital-onset, healthcare associated") |> 
+  mutate(region = as.character(region))
+
+hospital_summary <- hospital_cases |> 
+  group_by(region, year, week) |> 
+  summarise(
+    cases = sum(cases, na.rm = TRUE),
+    .groups = "drop"
+  ) |> 
+  filter(!is.na(year))
+
+p_od <- ggplot(
+  hospital_summary,
+  aes(x = week, y = cases, color = factor(year))
+  ) +
+  geom_line(aes(group = year), linewidth = 0.5, alpha = 0.7) +
+  geom_point(size = 1) +
+  facet_wrap(~region, scales = "free_y") +
+  scale_color_manual(values = c("2023" = "#2c3e50", "2024" = "#e74c3c")) +
+  labs(
+    title = "Hospital-onset C. difficile cases by week",
+    subtitle = "2023 vs 2024: each panel shows one region",
+    x = "Week number",
+    y = "Number of cases",
+    color = "Year"
+  ) +
+  theme_minimal() +
+  theme(
+    legend.position = "bottom",
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    strip.text = element_text(face = "bold"))
+
+
+ggplotly(p_od, tooltip = c("week", "year", "cases")) |> 
+  layout(
+    legend = list(
+      orientation = "h",
+      xanchor = "center",
+      x = 0.5,
+      y = -0.1,
+      font = list(size = 10)
+    )
+  )
+```
+
+### Regional Heatmap
+
+```{r}
+
+hospital_heatmap <- hospital_cases |> 
+  group_by(region, week) |> 
+  summarise(
+    total_cases = sum(cases, na.rm = TRUE),
+    .groups = "drop"
+  ) |> 
+  group_by(region) |> 
+  mutate(
+    region_mean = mean(total_cases, na.rm = TRUE),
+    alert_strength = ifelse(total_cases > region_mean * 1.5, total_cases, 0)
+  )
+
+p_rhm <- 
+  ggplot(
+    hospital_heatmap,
+    aes(x = week, y = region, fill = alert_strength,
+        text = paste("Region: ", region,
+                     "<br>Week: ", week,
+                     "<br>Alert strength: ", alert_strength))
+  ) +
+  geom_tile() +
+  scale_fill_gradient(low = "white", high = "#e74c3c", name = "Alert\nstrength") +
+  labs(
+    title = "C. diffile outbreak signals by region",
+    x = "Week",
+    y = ""
+  ) + 
+  theme_minimal()
+
+ggplotly(p_rhm, tooltip = "text")
+```
+
+------------------------------------------------------------------------
+
+# MMR Vaccination
+
+### Leicester Trends
+
+```{r}
+
+mmr_key <- mmr_data |> 
+  filter(geography %in% c("Leicester", "East Midlands (average)", "England"))
+
+p_lt <- 
+  ggplot(
+    mmr_key,
+    aes(x = year, y = coverage, color = geography,
+        text = paste("Geopraphy: ", geography,
+                     "<br>Year: ", year,
+                     "<br>Coverage: ", round(coverage, 1), "%"))
+  ) +
+  geom_hline(yintercept = 95, linetype = "dashed", color = "red", alpha = 0.5) +
+  geom_line(aes(group = geography), linewidth = 0.5) +
+  geom_point(size = 1) +
+  scale_color_manual(values = c(
+    "Leicester" = "#3498db",
+    "East Midlands (average)" = "#e67e22",
+    "England" = "#2c3e50"
+  )) +
+  scale_y_continuous(
+    labels = function(x) paste0(x, "%"), 
+    limits = c(85,100)
+  ) +
+  labs(
+    title = "MMR vaccination coverage by age 2",
+    subtitle = "Red dashed line = WHO 95% target",
+    x = "Year",
+    y = "Coverage (%)",
+    color = ""
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+
+ggplotly(p_lt, tooltip = "text") |>
+  layout(legend = list(
+    orientation = "h",
+    xanchor = "center",
+    x = 0.5,
+    y = -0.2
+  ))
+```
+
+### Regional Benchmark
+
+```{r}
+
+latest_mmr <- mmr_data |> 
+  filter(year == max(year)) |> 
+  arrange(desc(coverage))
+
+p_rb <- 
+  ggplot(
+    latest_mmr,
+    aes(
+      x = reorder(geography, coverage),
+      y = coverage,
+      fill = geography == "Leicester",
+      text = paste("Geography: ", geography,
+                   "<br>Coverage", round(coverage, 1), "%")
+    )
+  ) +
+  geom_hline(yintercept = 95, linetype = "dashed", color = "red", alpha = 0.5) +
+  geom_col() +
+  geom_text(aes(label = paste0(coverage, "%")), hjust = -0.1) +
+  scale_fill_manual(values = c("TRUE" = "#3498db", "FALSE" = "grey70")) +
+  coord_flip() +
+  labs(
+    title = paste("MMR coverage by geography (", max(latest_mmr$year), ")", sep = ""),
+    subtitle = "Leicester highlighted in blue",
+    x = "",
+    y = "Coverage (%)"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+ggplotly(p_rb, tooltip = "text")
+```
+
+------------------------------------------------------------------------
+
+# North-South Comparison
+
+### Statistical Comparison
+
+```{r}
+p_sc <- 
+  ggplot(
+    north_south_data,
+    aes(x = region_group, y = mortality_rate, fill = region_group,
+        text = paste("Group: ", region_group,
+                     "<br>Rate: ", round(mortality_rate, 1)))
+  ) +
+  geom_boxplot(alpha = 0.7) +
+  scale_fill_manual(values = c(
+    "North" = "#e74c3c",
+    "South" = "#3498db"
+  )) +
+  labs(
+    title = "Distribution of respiratory mortality rates",
+    subtitle = paste("North mean:", round(mean(north_south_data$mortality_rate[north_south_data$region_group == "North"], na.rm = TRUE), 1),
+                     "| South mean:", round(mean(north_south_data$mortality_rate[north_south_data$region_group == "South"], na.rm = TRUE), 1)),
+    x = "",
+    y = "Rate per 100,000",
+    fill = ""
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+ggplotly(p_sc, tooltip = "text")
+```
+
+### Time Series with CI
+
+```{r}
+
+annual_ci <- north_south_data |> 
+  group_by(region_group, year) |> 
+  summarise(
+    mean_rate = mean(mortality_rate, na.rm = TRUE),
+    se = sd(mortality_rate, na.rm = TRUE) / sqrt(n()),
+    ci_lower = mean_rate - 1.96 * se,
+    ci_upper = mean_rate + 1.96 * se,
+    .groups = "drop"
+  )
+
+p_ts_ci <-
+  ggplot(
+    annual_ci,
+    aes(x = year, y = mean_rate, color = region_group, fill = region_group,
+        text = paste("Group: ", region_group,
+                     "<br>Year: ", year,
+                     "<br>Rate: ", round(mean_rate, 1),
+                     "<br>95% CI: [", round(ci_lower, 1),", ", round(ci_upper, 1), "]"))
+  ) +
+    geom_ribbon(
+      aes(group = region_group, ymin = ci_lower, ymax = ci_upper),
+      alpha = 0.1,
+      color = NA
+    ) +
+    geom_line(aes(group = region_group), linewidth = 0.7) +
+    geom_point(size = 1) +
+    scale_color_manual(values = c("North" = "#e74c3c", "South" = "#3498db")) +
+    scale_fill_manual(values = c("North" = "#e74c3c", "South" = "#3498db")) +
+    labs(
+      title = "North-South divide with 95% confidence bands",
+      x = "Year",
+      y = "Rate per 100,000",
+      color = "",
+      fill = ""
+      ) +
+    theme_minimal() +
+    theme(legend.position = "bottom")
+  
+  ggplotly(p_ts_ci, tooltip = "text") |> 
+    layout(legend = list(orientation = "h", xanchor = "center", x = 0.5, y = -0.2))
+```
+
+------------------------------------------------------------------------
+
+# Data Explorer {.tabset}
+
+### Respiratory data
+
+```{r}
+datatable(
+  respiratory_data |> 
+    select(region, year, value, cases = count, population = denominator) |> 
+    arrange(region, year) |> 
+    mutate(
+      region = str_remove(region, " region \\(statistical\\)"),
+      across(where(is.numeric), ~round(., 1)),
+      cases = format(cases, big.mark = ","),
+      population = format(population, big.mark = ",")
+      ),
+  options = list(
+    pageLength = 20,
+    scrollX = TRUE,
+    dom = 'Bfrtip'
+  ),
+  caption = "Respiratory mortlaity by region and year"
+)
+```
+
+### MMR Data
+
+```{r}
+datatable(
+  mmr_data |>
+    select(geography, year, coverage_pct= coverage) |>
+    arrange(geography, year) |>
+    mutate(coverage_pct = round(coverage_pct, 1)),
+  options = list(
+    pageLength = 20,
+    scrollX = TRUE,
+    dom = 'Bfrtip'
+  ),
+  caption = "MMR coverage (%) by geography and year"
+)
+```
+
+------------------------------------------------------------------------
+
+# References
+
+### Data Sources
+
+| Source | Description | Access Date |
+|------------------|---------------------------|---------------------------|
+| **Fingertips** | Public health data for England | March 2026 |
+| **UKHSA Data Dashboard** | Infectious disease surveillance | March 2026 |
+| **NHS Digital** | Hospital Episode Statistics | March 2026 |
+| **Office for National Statistics** | Population estimates | March 2026 |
+
+### Packages Used
+
+| Package         | Version | Purpose                    |
+|-----------------|---------|----------------------------|
+| `fingertipsR`   | 0.3.0   | Access to Fingertips data  |
+| `ukhsadatR`     | 0.2.0   | UKHSA data API             |
+| `tidyverse`     | 2.0.0   | Data wrangling             |
+| `plotly`        | 4.10.0  | Interactive visualisations |
+| `flexdashboard` | 0.6.0   | Dashboard layout           |
+| `DT`            | 0.32.0  | Interactive tables         |
+| `effectsize`    | 0.8.0   | Effect size calculations   |
+
+### Reproducibility
+
+All analyses can be reproduced by running the `00-setup.qmd` script, which downloads all data and saves it as RDS files. The dashboard loads these saved files, ensuring consistency across days.
+
+**GitHub Repository:** [github.com/MarcoSorbona/ukhsa-respiratory-surveillance](https://github.com/MarcoSorbona/ukhsa-respiratory-surveillance)
+
+### Software Environment
+
+-   **R version:** 4.5.3
+-   **RStudio version:** 2024.12.0+467
+-   **Operating system:** Windows 11

@@ -1,0 +1,281 @@
+---
+title: "Routine Surveillance Report"
+author: "Marco Sorbona, PhD"
+date: "March 2026"
+format: 
+  html:
+    toc: true
+    code-fold: false
+    theme: cosmo
+editor: visual
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+#| label: setup-day1
+#| include: false
+
+library(tidyverse)
+library(plotly)
+library(knitr)
+library(geographr)
+library(leaflet)
+library(sf)
+library(fuzzyjoin)
+library(htmltools)
+
+# Load saved data
+respiratory_data <- readRDS("data/respiratory_data.rds")
+```
+
+## Data Source and Indicator Selection
+
+### Why this data?
+
+All data in this project come from the **Fingertips public health database**, maintained by the Office for Health Improvement and Disparities (OHID). Fingertips is the primary source of public health surveillance data in England, used by UKHSA, local authorities, and researchers to monitor population health and inform policy.
+
+### Why this indicator?
+
+I selected **Indicator ID 40701: "Under 75 mortality rate from respiratory disease"** for three reasons:
+
+| Reason | Explanation |
+|----|----|
+| **1. PHOF standard** | This indicator is part of the **Public Health Outcomes Framework (PHOF)** – the official government framework for tracking public health in England. It appears in the PHOF profile (Domain E: Healthcare and premature mortality), confirming it as a nationally recognised benchmark. |
+| **2. Core surveillance measure** | The same indicator appears across multiple Fingertips profiles, including **Respiratory Disease** and **Mortality Profile**, indicating it is the definitive measure for premature respiratory mortality. |
+| **3. Policy relevance** | "Under 75 mortality" captures **premature deaths**, those most amenable to public health intervention. This makes it directly relevant to UKHSA's work on prevention, surveillance, and reducing health inequalities. |
+
+### What this means for analysis
+
+Because this indicator is standardised across all English regions and reported consistently over time, it enables:
+
+-   Fair comparisons between regions
+-   Reliable trend analysis
+-   Alignment with national public health priorities
+
+All analysis in this project uses data for the **nine English regions** (AreaTypeID = 6), covering multiple years to identify patterns and support outbreak investigation, routine surveillance, and stakeholder reporting.
+
+## Routine Surveillance Report
+
+### Task
+
+Produce a periodic surveillance overview of respiratory mortality trends across English regions.
+
+### Code
+
+```{r}
+#| label: day1-surveillance
+#| fig-cap: "Interactive: Trends in respiratory mortality by region (hover for details)"
+
+# Calculate summary statistics by region and year
+regional_summary <- respiratory_data |> 
+  group_by(region, year) |> 
+  summarise(
+    avg_rate = mean(value, na.rm = TRUE),
+    total_death = sum(count, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# View the summary
+regional_summary |> 
+  head(10) |> 
+  kable()
+
+# Plot trends over time
+plot_day1 <- ggplot(regional_summary, 
+                    aes(
+                      x = year, 
+                      y = avg_rate, 
+                      color = region,
+                      text = paste("Region", region,
+                                   "<br>Year", year,
+                                   "<br>Rate", round(avg_rate, 1),
+                                   "<br>Death", round(total_death, 0)
+                                   ))) +
+  geom_line(aes(group = region), linewidth = .5) +
+  geom_point(size = 1) +
+  scale_color_viridis_d() +
+  labs(
+    title = "Respiratory mortality trends by region",
+    subtitle = "Hover over lines for exact values. Click legend items to toggle regions.",
+    x = "Year",
+    y = "Rate per 100,000",
+    color = "Region"
+  ) +
+  theme_minimal()+
+  theme(legend.position = "bottom")
+
+# Convert to interactive plotly
+ggplotly(plot_day1, tooltip = "text") |> 
+  layout(
+    title = list(
+      text = paste0("<b>Respiratory mortality trends by region</b><br>",
+                    "<sup>Hover over lines for values. Click legend items to toggle regions.</sup>")
+      ),
+    legend = list(
+    orientation = "h",
+    xanchor = "center",
+    x = 0.5,
+    y = -0.3,
+    traceorder = "normal",
+    font = list(size = 10),
+    itemsizing = "small", 
+    tracegroupgap = 5
+  )) |>
+  layout(legend = list(itemclick = "toggle", groupclick = "toggle"))
+```
+
+### Interpretation
+
+The plot reveals several patterns in premature respiratory mortality across English regions:
+
+**Long-term trend (2001–2019)**
+
+A consistent downward trend is visible across all regions, reflecting improvements in respiratory health outcomes over nearly two decades. This likely reflects advances in treatment, smoking cessation programmes, and broader public health interventions.
+
+**COVID-19 impact (2020–2023)**
+
+A sharp increase in mortality begins in 2020 and peaks in 2021–2023. This corresponds directly to the COVID-19 pandemic, which disproportionately affected respiratory health. The sustained elevation across 2021–2023 suggests both direct COVID-19 deaths and indirect effects on healthcare access and respiratory care.
+
+**2024 decrease**
+
+The drop in 2024 likely represents a post-pandemic normalisation, though rates remain above pre-pandemic levels in most regions, an important finding for ongoing surveillance.
+
+**Regional inequalities**
+
+-   **North East** and **North West** consistently show the highest rates throughout the period
+
+-   **South East** and **South West** consistently show the lowest rates.
+
+-   The gap between regions persists even during the pandemic peak, suggesting underlying structural inequalities in respiratory health
+
+**Public health implications**
+
+These patterns highlight the need for:
+
+-   Targeted respiratory interventions in the North West
+
+-   Continued monitoring of post-pandemic recovery
+
+-   Investigation into why some regions are more resilient than others
+
+### Interactive map: Regional variation in Respiratory Mortality
+
+We'll use **fuzzy string matching** to automatically link Fingertips region names to ONS region names/codes to handle inconsistent naming.
+
+```{r}
+#| label: region-matching
+#| include: false
+
+# 0. Getting region boundaries
+regions_sf <- boundaries_region21
+
+# 1. Create ONS reference table
+ons_lookup <- regions_sf |> 
+  st_drop_geometry() |> # remove spatial data, keep only attributes
+  select(region_code = region21_code, region_ons = region21_name) |> 
+  distinct()
+
+# 2. Clean the Fingertips names to match ONS format
+fingertips_clean <- regional_summary |> 
+  distinct(region) |> 
+  mutate(
+    region_clean = str_remove(region, " region \\(statistical\\)"),
+    region_clean = str_remove(region_clean, " region$"),
+    region_clean = str_trim(region_clean)
+  ) |> 
+  filter(region_clean != "England")
+
+# 3. Extract unique region names from the data
+fingertips_region <- fingertips_clean |> 
+  distinct(region_clean) |> 
+  pull(region_clean) # Extracts a single column as a vector, instead of a data frame
+
+# 4. Automatically match each Fingertips name to the closest ONS name
+# Create matching table
+region_match <- fingertips_region |> 
+  as_tibble() |> 
+  rename(region_fingertips = value) |> 
+  stringdist_left_join(
+    ons_lookup,
+    by = c("region_fingertips" = "region_ons"),
+    method = "jw",    # Jaro-Winkler distance (good for names)
+    max_dist = 0.2,   # Allow some fuzziness
+    distance_col = "match_score"
+  ) |> 
+  group_by(region_fingertips) |> 
+  slice_min(match_score, n = 1) |> 
+  ungroup()
+
+# 5. Add codes to Fingertips summary data
+regional_summary_coded <- regional_summary |> 
+  left_join(fingertips_clean, by = "region") |>                           # Adds region_clean
+  left_join(region_match, by = c("region_clean" = "region_fingertips")) # adds region_code
+
+# 6. Create map data for latest year
+latest_year <- max(regional_summary$year, na.rm = TRUE)
+
+map_data <- regions_sf |> 
+  left_join(
+    regional_summary_coded |> filter(year == latest_year),
+    by = c("region21_code" = "region_code")
+  )
+```
+
+```{r}
+#| label: day1-map
+#| fig-cap: "Interactive map: Respiratory mortality by English region (latest year)"
+
+# Create colour palette (colourblind-safe)
+pal <- colorNumeric(
+  palette = "viridis",
+  domain = map_data$avg_rate,
+  na.color = "#808080" # grey for missing data
+)
+
+# Build interactive map
+leaflet(map_data) |> 
+  addTiles()|> # OpenStreetMap basemap
+  addPolygons(
+    fillColor = ~pal(avg_rate),
+    weight = 1,
+    opacity = 1,
+    color = "white",
+    fillOpacity = 0.7,
+    highlightOptions = highlightOptions(
+      weight = 3,
+      color = "#666",
+      fillOpacity = 0.9,
+      bringToFront = TRUE
+    ),
+    label = ~paste0(
+      region21_name, ": ",
+      round(avg_rate, 1), " per 100,000"
+    ),
+    labelOptions = labelOptions(
+      style = list("font-weight" = "normal", padding = "3px 8px"),
+      textsize = "10px",
+      direction = "auto"
+    )
+  ) |> 
+  addLegend(
+    pal = pal,
+    values = ~avg_rate,
+    opacity = 0.7,
+    title = paste0(latest_year, " mortality rate<br>per 100,000"),
+    position = "bottomright"
+  ) |> 
+  setView(lng = -2.5, lat = 53.5, zoom = 5.3)
+```
+
+### Map Interpretation
+
+The choropleth map shows geographic inequalities in respiratory mortality for `r latest_year`:
+
+-   North West and North East show the highest rates
+
+-   South West, South East, and London show the lowest rates
+
+-   This North–South divide aligns with broader health inequalities in England
+
+*Data: ONS via geographr (Contains OS data © Crown copyright and database right 2021).*

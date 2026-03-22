@@ -1,0 +1,414 @@
+---
+title: "Local Authority Data Request – MMR Coverage"
+author: "Marco Sorbona, PhD"
+date: "March 2026"
+format: 
+  html:
+    toc: true
+    code-fold: false
+    theme: cosmo
+editor: visual
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+#| label: setup-day3
+#| include: false
+
+library(fingertipsR)
+library(tidyverse)
+library(knitr)
+library(DT)
+library(plotly)
+library(scales)
+library(lubridate)
+
+theme_set(theme_minimal())
+
+# Load saved MMR data
+mmr_data <- readRDS("data/mmr_data.rds")
+em_authorities <- readRDS("data/em_authorities.rds")
+```
+
+## Task
+
+Leicester City Council has requested data on **MMR vaccination coverage** to understand why rates have declined from previously high levels. They need:
+
+1.  Annual MMR coverage rates (age 2, one dose) for Leicester, East Midlands (average), and England (2010–2024)
+2.  Comparison against the WHO 95% target
+3.  Analysis of the decline from Leicester's peak years
+4.  A one‑page summary of key findings for their public health team
+
+This request tests the ability to respond to external stakeholders with timely, accurate data: a core UKHSA function.
+
+## Background: Why MMR Coverage Matters
+
+Measles, mumps, and rubella (MMR) are highly infectious diseases that can cause serious complications. The World Health Organization recommends **95% coverage** for two doses of MMR vaccine to achieve herd immunity and prevent outbreaks.
+
+In recent years, the UK has seen measles outbreaks linked to declining vaccination rates. Understanding local trends is essential for targeting public health interventions.
+
+## Data Source
+
+The data come from the **Fingertips public health database** (Indicator 30309 – MMR coverage for one dose by age 2). This is the same source used in Day 1, but for a different indicator, demonstrating the ability to work across multiple public health domains.
+
+Regional‑level data was not available for this indicator, so an **East Midlands average** was constructed from local authorities in the region to provide a meaningful benchmark.
+
+## Data Overview
+
+```{r}
+#| label: data-summary
+
+mmr_data |> 
+  group_by(geography) |> 
+  summarise(
+    min_coverage = min(coverage),
+    mean_coverage = mean(coverage),
+    max_coverage = max(coverage),
+    latest_coverage = coverage[year == max(year)]
+  ) |> 
+  mutate(across(where(is.numeric), ~round(.,1))) |> 
+  kable(caption = "MMR coverage summary by geography (2010 - 2024)")
+
+```
+
+**Rationale:** Before diving into detailed analysis, it's useful to see the big picture. This table shows the range, average, and most recent value for each geography, immediately highlighting that Leicester's latest coverage is well below its historical peak.
+
+## Leicester's Story: Peak and Decline
+
+```{r}
+#| label: leicester-peak
+
+leicester_data <- mmr_data |> 
+  filter(geography == "Leicester")
+
+leicester_peak <- leicester_data |> 
+  summarise(
+    peak_year = year[which.max(coverage)],
+    peak_coverage = max(coverage),
+    current_year = max(year),
+    current_coverage = coverage[year == max(year)],
+    decline = peak_coverage - current_coverage
+  )
+
+peak_year <- leicester_peak$peak_year
+peak_coverage <- leicester_peak$peak_coverage
+current_coverage <- leicester_peak$current_coverage
+decline <- leicester_peak$decline
+```
+
+Leicester achieved the WHO 95% target in **`r peak_year`**, reaching **`r peak_coverage`%** coverage. Since then, coverage has fallen by **`r round(decline, 1)` percentage points** to **`r current_coverage`%** in `r max(mmr_data$year)`.
+
+**Rationale:** Extracting these values programmatically ensures the narrative stays accurate even if the data updates. It also allows us to use them in plot annotations.
+
+------------------------------------------------------------------------
+
+## Annual Coverage table
+
+```{r}
+#| label: annual-table
+#| tbl-cap: "Annual MMR coverage (%) by geography"
+
+# Create wide table for easy comparison
+mmr_wide <- mmr_data |> 
+  select(year, geography, coverage) |> 
+  pivot_wider(
+    names_from = geography,
+    values_from = coverage
+  ) |> 
+  mutate(
+    diff_em = round(`East Midlands (average)` - England, 1),
+    diff_leicester = round(Leicester - England, 1),
+    target_met = ifelse(Leicester >= 95, "Met 95%", "Below 95%")
+  )
+
+# Display as interactive datatable
+datatable(
+  mmr_wide,
+  options = list(
+    pagelength = 15,
+    scrollX = TRUE,
+    dom = 'Bfrtip'
+  ),
+  caption = "Annual MMR coverage by age 2 (%)"
+) |> 
+  formatStyle(
+    "Leicester",
+    backgroundColor = styleInterval(c(95), c("lightcoral", "lightgreen"))
+  )
+
+```
+
+**Rationale:** A wide-format table allows readers to see all geographies side by side for each year. The interactive `DT` table adds sortability and searchability, useful for stakeholder exploration. Colour-coding highlights years where Leicester meets the target.
+
+**Explanation of steps:**
+
+-   `pivot_wider()` converts from long to wide format
+
+-   `mutate()` creates difference columns to quantify gaps
+
+-   `formatStyle()` applies conditional formatting (green when ≥95%, coral when below)
+
+------------------------------------------------------------------------
+
+## Trend Visualisation
+
+```{r}
+#| label: trend-plot
+#| fig-cap: "MMR coverage: Leicester's rise and fall"
+
+# Create plot
+p_trend <- ggplot(
+  mmr_data,
+  aes( x = year, y = coverage, color = geography)
+) +
+  geom_hline(yintercept = 95, linetype = "dashed", color = "red", alpha = 0.5) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 2) +
+  annotate("text", x = peak_year, y = peak_coverage + 1,
+           label = paste("Peak: ", peak_coverage, "%"), size = 3) +
+  scale_color_manual(values = c(
+    "England" = "#2c3e50",
+    "East Midlands (average)" = "#e67e22",
+    "Leicester" = "#3498db"
+  )) +
+scale_x_continuous(breaks = seq(2010, 2024, 2)) +
+  scale_y_continuous(limits = c(85, 100), labels = function(x) paste0(x, "%")) +
+  labs(
+    title = "MMR vaccination coverage by age 2: Leicester's decline from target",
+    subtitle = paste("Leicester met the 95% target in", peak_year, 
+                     "but has since fallen", round(decline, 1), "points"),
+    x = "Year",
+    y = "Coverage (%)",
+    color = "",
+    caption = "Red dashed line = WHO 95% target. East Midlands values are an average of local authorities."
+  ) +
+  theme_minimal() +
+  theme(
+    legend.position = "bottom",
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+
+ggplotly(p_trend, tooltip = c("year", "geography", "coverage"))
+```
+
+**Rationale:** A line chart is the standard way to show trends over time. This plot tells Leicester's story visually:
+
+-   The red dashed line shows the target
+
+-   Leicester's line (blue) rises above it in 2012–14, then steadily declines
+
+-   The regional (orange) and national (grey) lines provide context
+
+-   The annotation highlights the peak year
+
+**Explanation of layers:**
+
+-   `geom_hline()` adds the WHO target line
+
+-   `geom_line()` and `geom_point()` show the data
+
+-   `annotate()` adds a text label at the peak
+
+-   `scale_color_manual()` sets consistent, accessible colours
+
+-   `ggplotly()` makes the plot interactive (hover to see exact values)
+
+------------------------------------------------------------------------
+
+## Gap to Target Chart
+
+```{r}
+#| label: gap-plot
+#| fig-cap: "Leicester: gap to WHO 95% target"
+
+gap_data <- mmr_wide |> 
+  select(year, Leicester) |> 
+  mutate(
+    gap_to_target = round(95 - Leicester, 1),
+    above_target = gap_to_target <= 0
+  )
+
+p_gap <- ggplot(
+  gap_data,
+  aes(x = year, y = gap_to_target, fill = above_target)
+) +
+  geom_col(width = 0.7) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "grey50") +
+  scale_fill_manual(values = c("TRUE" = "#2ecc71", "FALSE" = "#e74c3c")) +
+  scale_x_continuous(breaks = seq(2010, 2024,2)) +
+  scale_y_continuous(labels = function(x) paste0(x, "%")) +
+  labs(
+    title = "Leicester: gap to WHO 95% target",
+    subtitle = "Positive values indicate coverage below target. Leicester met the target in 2012-14.",
+    x = "Year",
+    y = "Gap to 95% target (percentage points)",
+    fill = "Above target:"
+  ) +
+  theme_minimal() +
+  theme(
+    legend.position = "bottom",
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+
+ggplotly(p_gap, tooltip = c("year", "gap_to_target"))
+```
+
+**Rationale:** This chart focuses specifically on Leicester's performance relative to the target. Bars above zero show years below target; bars below zero (green) show years above target. This makes the magnitude and duration of the deficit immediately visible.
+
+**Explanation:**
+
+-   `gap_to_target = 95 - Leicester` (positive = below target)
+
+-   `above_target = gap_to_target <= 0` (flags years meeting/exceeding target)
+
+-   Green bars = meeting target, red bars = below target
+
+------------------------------------------------------------------------
+
+## Benchmark Chart (Latest Year)
+
+```{r}
+#| label: benchmark-plot
+#| fig-cap: "East Midlands local authorities: MMR coverage (latest year)"
+latest_year <- max(mmr_data$year)
+
+# Get latest data for all East Midlands authorities
+latest_em <- em_authorities |> 
+  filter(str_detect(Timeperiod, as.character(latest_year))) |> 
+  filter(!is.na(Value)) |> 
+  select(AreaName, coverage = Value) |> 
+  mutate(
+    coverage = round(coverage, 1)
+  ) |> 
+  add_row(AreaName = "Leicester", coverage = current_coverage) |> 
+  distinct() |> 
+  arrange(desc(coverage))
+
+# Highlight Leicester
+p_benchmark <- ggplot(
+  latest_em, 
+  aes(x = reorder(AreaName, coverage), y = coverage, fill = AreaName == "Leicester")
+) +
+  geom_hline(yintercept = 95, linetype = "dashed", color = "red", alpha = 0.5) +
+  geom_col() +
+  geom_text(
+    aes(label = paste0(coverage, "%")),
+    hjust = -0.1
+  ) +
+  scale_fill_manual(values = c("TRUE" = "#3498db", "FALSE" = "grey70")) +
+  scale_y_continuous(limits = c (0, 100), labels = function(x) paste0(x, "%")) +
+  coord_flip() +
+  labs(
+    title = paste("MMR coverage in East Midlands (", latest_year, ")", sep = ""),
+    subtitle = "Leicester highlighted in blue. Red line = WHO 95% target",
+    x = "",
+    y = "Coverage (%)",
+    fill = ""
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+ggplotly(p_benchmark, tooltip = c("AreaName", "coverage"))
+```
+
+**Rationale:** This chart shows how Leicester compares to other local authorities in the East Midlands in the most recent year. It answers the question: "Is Leicester's problem unique, or are neighbouring areas also struggling?"
+
+**Explanation:**
+
+-   `reorder(AreaName, coverage)` sorts bars by coverage (highest to lowest)
+
+-   Leicester is highlighted in blue for easy identification
+
+-   The red dashed line shows the WHO target
+
+-   `coord_flip()` makes area names readable
+
+------------------------------------------------------------------------
+
+## Summary Statistics for Briefing
+
+```{r}
+#| label: briefing-stat
+
+latest_england <- mmr_data |> 
+  filter(geography == "England", year == latest_year) |> 
+  pull(coverage)
+
+latest_em <- mmr_data |> 
+  filter(geography == "East Midlands (average)", year == latest_year) |> 
+  pull(coverage)
+
+# Years below target in last 5 years
+recent_below <- mmr_wide |> 
+  filter(year >= 2020, Leicester < 95) |> 
+  nrow()
+```
+
+**Rationale:** These values are extracted programmatically so they can be inserted into the narrative text below. This ensures consistency between the text and the data.
+
+------------------------------------------------------------------------
+
+## Key Findings
+
+The analysis shows:
+
+-   **Leicester achieved the WHO 95% target in 2012–14**, reaching a peak of `r peak_coverage`%
+-   Since then, coverage has **declined by `r round(decline, 1)` percentage points** to `r current_coverage`% in `r latest_year`
+-   Leicester is now **`r round(95 - current_coverage, 1)` points below the target**
+-   This compares to `r latest_em`% in the East Midlands (average) and `r latest_england`% in England
+-   In the last 5 years, Leicester has been **below target in all `r recent_below` years**
+
+## One‑Page Briefing for Leicester City Council
+
+------------------------------------------------------------------------
+
+### MMR Vaccination Coverage in Leicester: Reversing the Decline
+
+**Date:** March 2026\
+**Prepared by:** Marco Sorbona\
+**Data source:** Fingertips public health database (Indicator 30309 – MMR coverage by age 2)
+
+#### Key Messages
+
+-   Leicester **met the WHO 95% target in 2012–14**, reaching `r peak_coverage`% coverage
+-   Since then, coverage has **fallen by `r round(decline, 1)` percentage points** to `r current_coverage`% in `r latest_year`
+-   Leicester is now **`r round(95 - current_coverage, 1)` points below the target** and ranks in the lower half of East Midlands authorities
+-   The decline has been **sustained over a decade**, not a one‑year drop
+
+#### Why This Matters
+
+Leicester has **proved it can achieve high coverage**. The question is: what changed? Possible factors include: - Changes in local service delivery - Vaccine hesitancy trends - Population churn and access issues - Post‑pandemic disruption to routine immunisation
+
+Understanding why coverage fell after 2014 is essential to designing effective recovery strategies.
+
+#### Recommendations
+
+1.  **Investigate local factors** – compare 2012–14 (peak) to now: what was different in service delivery, outreach, and messaging?
+2.  **Targeted catch‑up campaigns** for children born during the decline years
+3.  **Peer learning** – identify East Midlands authorities maintaining higher coverage and understand their practices
+4.  **Monitor monthly** rather than annually to detect early warning signs
+
+#### Limitations
+
+-   Data are for age 2 only; coverage at age 5 (second dose) may differ
+-   Small numbers in some years may cause volatility
+-   COVID‑19 disrupted both vaccination services and data collection in 2020–2021
+-   East Midlands values are an average of local authorities, not an official regional statistic
+
+------------------------------------------------------------------------
+
+## Appendix: Data Quality Notes
+
+```{r}
+#| label: data-notes
+#| include: true
+
+# Indicator: 30309 – MMR for one dose at age 2
+# Source: Fingertips / UKHSA
+# Geography: Leicester City (UA), East Midlands (average of local authorities), England
+# Time period: 2010-2024
+
+# Peak years: 2012-2014 when Leicester exceeded 95%
+# Current: 88.4% in 2024
+```

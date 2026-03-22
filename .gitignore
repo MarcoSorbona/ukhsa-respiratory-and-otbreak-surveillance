@@ -1,0 +1,20 @@
+# R
+.RData
+.Rhistory
+.Ruserdata
+*.Rproj.user
+
+# Data (too big for GitHub, and you can regenerate)
+data/*.rds
+data/*.csv
+data/*.geojson
+
+# Outputs
+*.html
+*.pdf
+*/_files/  # plotly temp files
+
+# OS files
+.DS_Store
+Thumbs.db
+.Rproj.user

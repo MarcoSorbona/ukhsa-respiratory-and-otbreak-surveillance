@@ -1,0 +1,334 @@
+---
+title: "00 - Data Setup"
+format: html
+editor: source
+execute:
+  echo: true
+  warning: false
+  message: false
+editor_options: 
+  chunk_output_type: console
+---
+
+## Under 75 respiratory mortality surveillance data
+
+```{r}
+#| label: setup
+#| include: false
+
+library(fingertipsR)
+library(tidyverse)
+
+# Find the indicator ID for under 75 respiratory mortality
+all_indicators <- indicators()
+
+# Filter to find respiratory mortality indicators
+respiratory_inds <- all_indicators |>  
+  filter(grepl("Under 75 mortality.*respiratory", IndicatorName, ignore.case = TRUE))
+
+# View to choose the right one
+# View(respiratory_inds)
+
+indicator_id <- 40701
+
+# Download fresh data
+raw_data <- fingertips_data(IndicatorID = indicator_id, AreaTypeID = 6)
+
+# Clean and save
+respiratory_data <- raw_data |> 
+  select(
+    region = AreaName,
+    time_period = Timeperiod,
+    value = Value,
+    count = Count,
+    denominator = Denominator,
+    lower_ci = LowerCI95.0limit,
+    upper_ci = UpperCI95.0limit,
+    sex = Sex,
+    age = Age
+  ) |> 
+  mutate(year = as.numeric(str_extract(time_period, "\\d{4}")))
+
+# Save
+saveRDS(respiratory_data, "data/respiratory_data.rds")
+print("Data ready.")
+```
+
+The `time_period` column contains both single-year estimates ("2024") and three‑year averages ("2022 - 24"). To enable chronological plotting, I extracted the first four digits to create a numeric `year` column. For three‑year ranges, I assigned the value to the start year: a practical choice that maintains time order and allows these period averages to be visualised alongside single‑year estimates without overlap. The original time period is preserved in the data should more detail be needed.
+
+## C. Difficile Data for Outbreak Detection
+
+```{r}
+#| label: download-cdiff-data
+#| include: false
+
+# Create a vector of all UKHSA regions
+ukhsa_regions <- c(
+  "East Midlands",
+  "East of England",
+  "London",
+  "North East",
+  "North West",
+  "South East",
+  "South West",
+  "West Midlands",
+  "Yorkshire and Humber"
+)
+
+# Download C. difficile data for each region and combine
+cdiff_list <- list()
+
+for(region in ukhsa_regions) {
+  message("Downloading data for: ", region)
+  region_data <- get_data(
+    theme = "infectious_disease",
+    sub_theme = "gastrointestinal",
+    topic = "C-difficile",
+    geography_type = "UKHSA Region",
+    geography = region,
+    metric = "c-difficile_cases_countsByOnsetType"
+)
+
+  if(!is.null(region_data)) {
+    cdiff_list[[region]] <- region_data
+  }
+}
+
+# Combine all regions
+cdiff_raw <- bind_rows(cdiff_list)
+
+# Clean and C. Difficile save
+cdiff_data <- cdiff_raw |> 
+  mutate(
+    date = as.Date(date),
+    week = epiweek,  # Use the epiweek column from the data
+    year = year,  # Already present
+    region = as.factor(geography),  # geography column contains region names
+    onset_type = stratum,  # Rename for clarity (Community-onset, Hospital-onset, etc.)
+    cases = metric_value,  # Rename to match our analysis code
+    id = paste(region, year, sprintf("%02d", week), sep = "_")
+  ) |> 
+  select(
+    region, year, week, date, onset_type, cases,
+    geography_code, metric, sex, age, everything()
+  ) |> 
+  filter(!is.na(cases)) |> 
+  arrange(region, year, week, onset_type)
+
+# Check the cleaned data
+glimpse(cdiff_data)
+
+# Save to RDS
+saveRDS(cdiff_data, "data/cdiff_data.rds")
+
+print("C. difficile data downloaded and saved successfully.")
+print(paste("Total rows:", nrow(cdiff_data)))
+print(paste("Regions:", paste(unique(cdiff_data$region), collapse = ", ")))
+print(paste("Years:", paste(unique(cdiff_data$year), collapse = ", ")))
+print(paste("Onset types:", paste(unique(cdiff_data$onset_type), collapse = ", ")))
+```
+
+## MMR Vaccination Coverage Data
+
+```{r}
+#| label: mmr-indicator
+#| include: false
+
+# Find MMR indicator ID
+all_indicator <- indicators()
+mmr_indicator <- all_indicator |> 
+  filter(grepl("MMR", IndicatorName, ignore.case = TRUE))
+View(all_indicator)
+```
+
+```{r}
+#| label: preliminary-exploration
+#| include: false
+
+library(fingertipsR)
+library(tidyverse)
+
+# Get MMR data for all unitary authorities/counties
+mmr_explore <- fingertips_data(
+  IndicatorID = 30309,
+  AreaTypeID = 502
+)
+
+# See what areas are available
+area_summary <- mmr_explore |> 
+  group_by(AreaName) |> 
+  summarise(
+    years = n_distinct(Timeperiod),
+    latest_value = Value[which.max(as.numeric(str_extract(Timeperiod, "\\d{4}")))],
+    .groups = "drop"
+  ) |> 
+  arrange(desc(years))
+
+View(area_summary)
+
+# Check specific cities you're interested in
+cities_of_interest <- c("Nottingham", "Leicester", "Bristol", "York", "Derby", "Peterborough", "Birmingham")
+
+mmr_explore |>
+  filter(AreaName %in% cities_of_interest) |>
+  select(AreaName, Timeperiod, Value) |>
+  arrange(AreaName, Timeperiod)
+
+# Filter to your shortlist
+cities_to_plot <- c("Leicester", "Nottingham", "Bristol", "Birmingham", "York", "Derby", "Peterborough")
+
+mmr_cities <- mmr_explore |>
+  filter(AreaName %in% cities_to_plot)
+
+# Create the plot
+ggplot(mmr_cities, aes(x = Timeperiod, y = Value, color = AreaName, group = AreaName)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 1.5) +
+  scale_color_viridis_d() +
+  labs(
+    title = "MMR coverage trends in selected cities",
+    subtitle = "2010/11 to 2024/25",
+    x = "Year",
+    y = "Coverage (%)",
+    color = "City",
+    caption = "Data: Fingertips (Indicator 30309)"
+  ) +
+  theme_minimal() +
+  theme(
+    legend.position = "bottom",
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+```
+
+```{r}
+#| label: download-mmr
+#| include: false
+
+library(fingertipsR)
+library(tidyverse)
+
+# Download MMR data using correct AreaTypeIDs
+# Indicator 30309: MMR for one dose at age 2
+
+# Leicester City (Unitary Authority - AreaTypeID: 502)
+mmr_leicester <- fingertips_data(
+  IndicatorID = 30309,
+  AreaTypeID = 502
+) |> 
+  filter(AreaName == "Leicester")
+
+# England (AreaTypeID: 15)
+mmr_england <- fingertips_data(
+  IndicatorID = 30309,
+  AreaTypeID = 15
+) |> 
+  filter(
+    AreaName == "England")
+
+# East Midlands authorities for regional average
+em_raw <- fingertips_data(
+  IndicatorID = 30309,
+  AreaTypeID = 502
+) |>
+  filter(
+    AreaName %in% c(
+      "Derby", "Leicester", "Lincolnshire", "Northamptonshire", 
+      "Nottingham", "Nottinghamshire", "Rutland", "Leicestershire"
+    )
+  )
+
+# Calculate East Midlands average
+mmr_em_average <- em_raw |>
+  group_by(Timeperiod) |>
+  summarise(
+    coverage = mean(Value, na.rm = TRUE),
+    geography = "East Midlands (average)",
+    .groups = "drop"
+  ) |>
+  mutate(
+    year = as.numeric(str_extract(Timeperiod, "\\d{4}")),
+    coverage = round(coverage, 1)
+  )
+
+# Combine main datasets
+mmr_data <- bind_rows(
+  mmr_leicester |> select(geography = AreaName, time_period = Timeperiod, coverage = Value),
+  mmr_england |> select(geography = AreaName, time_period = Timeperiod, coverage = Value),
+  mmr_em_average |> select(geography, time_period = Timeperiod, coverage)
+) |>
+  mutate(
+    year = as.numeric(str_extract(time_period, "\\d{4}")),
+    coverage = round(coverage, 1)
+  ) |>
+  filter(year >= 2010) |>
+  arrange(geography, year)
+
+# Save main data
+saveRDS(mmr_data, "data/mmr_data.rds")
+
+# Save benchmark data separately
+saveRDS(em_raw, "data/em_authorities.rds")
+
+print("MMR coverage data downloaded and saved successfully!")
+print(paste("Leicester years:", nrow(mmr_leicester)))
+print(paste("East Midlands average years:", nrow(mmr_em_average)))
+print(paste("England years:", nrow(mmr_england)))
+```
+
+## North-South Grouped Respiratory Data (for Day 4)
+
+```{r}
+#| label: prepare-north-south
+#| include: false
+
+library(tidyverse)
+library(stringr)
+
+# Load the saved respiratory data from day 1
+respiratory_data <- readRDS("data/respiratory_data.rds")
+
+# Define region groupings
+north_regions <- c(
+    "North East region (statistical)",
+  "North West region (statistical)",
+  "Yorkshire and the Humber region (statistical)"
+  )
+south_regions <- c(
+    "South East region (statistical)",
+  "South West region (statistical)",
+  "London region (statistical)",
+  "East of England region (statistical)"
+  )
+excluded_regions <- c(
+    "East Midlands region (statistical)",
+  "West Midlands region (statistical)",
+  "England"  # Exclude national level
+  )
+
+# Add grouping variable and filter to North/South only
+north_south_data <- respiratory_data |> 
+  mutate(
+    region_group = case_when(
+      region %in% north_regions ~ "North",
+      region %in% south_regions ~ "South",
+      TRUE ~ "Excluded"
+    )
+  ) |> 
+  filter(region_group != "Excluded") |> 
+  select(region, region_group, year, mortality_rate = value, deaths = count)
+
+glimpse(north_south_data)
+
+# Verify regions are correctly assigned
+north_south_data |> 
+  distinct(region, region_group) |> 
+  arrange(region_group, region) |> 
+  print()
+
+# Save for Day 4
+saveRDS(north_south_data, "data/north_south_data.rds")
+
+print("North‑South grouped data saved successfully!")
+print(paste("North observations:", nrow(filter(north_south_data, region_group == "North"))))
+print(paste("South observations:", nrow(filter(north_south_data, region_group == "South"))))
+```

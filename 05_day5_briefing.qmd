@@ -1,0 +1,118 @@
+---
+title: "Respiratory Disease and Immunisation in England: Key Findings"
+author: "Marco Sorbona, PhD"
+date: "March 2026"
+format: 
+  html:
+    toc: false
+    code-fold: false
+    theme: cosmo
+    css: briefing.css
+editor: visual
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+#| label: setup-day5
+#| include: false
+
+library(tidyverse)
+library(ggplot2)
+library(scales)
+library(knitr)
+
+# Load data from previous days
+respiratory_data <- readRDS("data/respiratory_data.rds")
+north_south_data <- readRDS("data/north_south_data.rds")
+mmr_data <- readRDS("data/mmr_data.rds")
+```
+
+## Background
+
+This briefing summarises four days of analysis on respiratory mortality and MMR vaccination coverage in England. Data are drawn from the Fingertips public health database (Indicators 40701 and 30309) and cover the period 2001–2024.
+
+## Key Findings
+
+| Finding | Detail |
+|----|----|
+| **North‑South divide** | Northern regions have 14.1 more respiratory deaths per 100,000 than the South – a 48% higher rate |
+| **Statistical significance** | p \< 0.001; Cohen's d = 2.4 (large effect) |
+| **Persistent inequality** | The gap has remained stable for over two decades |
+| **Leicester MMR decline** | Coverage fell from 95.8% (2013) to 88.4% (2024) – an 8‑point drop |
+| **Outbreak signal** | East Midlands showed 80% of weeks exceeding Poisson threshold for C. difficile |
+
+```{r}
+#| label: key-chart
+#| fig-cap: "North-South respiratory mortality gap (2001–2024)"
+#| fig-width: 8
+#| fig-height: 5
+
+# Calculate annual means by group
+annual_group <- north_south_data |>
+  group_by(region_group, year) |>
+  summarise(
+    mean_rate = mean(mortality_rate, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# Create the chart
+ggplot(annual_group, aes(x = year, y = mean_rate, color = region_group)) +
+  geom_line(linewidth = 1.2) +
+  scale_color_manual(values = c("North" = "#e74c3c", "South" = "#3498db")) +
+  scale_x_continuous(breaks = seq(2000, 2025, 5)) +
+  scale_y_continuous(labels = comma) +
+  labs(
+    title = "North‑South divide in respiratory mortality",
+    subtitle = "Northern regions consistently higher over two decades",
+    x = "Year",
+    y = "Deaths per 100,000",
+    color = "",
+    caption = "Data: Fingertips (Indicator 40701)"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    legend.position = "bottom",
+    plot.title = element_text(face = "bold"),
+    panel.grid.minor = element_blank()
+  )
+```
+
+## Interpretation
+
+The North has **14.1 additional respiratory deaths per 100,000** compared to the South. This difference has persisted for over 20 years and is highly statistically significant (p \< 0.001). The effect size (Cohen's d = 2.4) indicates a large and practically meaningful gap.
+
+Leicester's MMR coverage has declined from meeting the WHO 95% target in 2013 to 88.4% in 2024 – an 8‑point drop that leaves the city below the herd immunity threshold.
+
+The East Midlands showed an outbreak signal for C. difficile, with 80% of comparable weeks exceeding expected levels – warranting investigation.
+
+## Recommendations
+
+1.  **Target resources to northern regions** – additional investment in respiratory health services is needed
+2.  **Investigate Leicester's MMR decline** – understand local factors behind the 8‑point drop
+3.  **Follow up C. difficile outbreak signal** – request line lists from East Midlands trusts
+4.  **Monitor inequalities quarterly** – track the North‑South gap in routine surveillance
+
+## Limitations
+
+-   Respiratory mortality data exclude COVID‑19 deaths (coded separately)
+-   MMR data are for age 2 only; coverage at age 5 may differ
+-   C. difficile baseline limited to 5 weeks in 2023
+-   Regional averages mask within‑area variation
+
+------------------------------------------------------------------------
+
+**Prepared by:** Marco Sorbona, PhD\
+**Date:** March 2026\
+**Contact:** marco.sorbona\@example.com
+
+```{r}
+#| label: data-notes
+#| include: true
+
+# Data sources:
+# Day 1: Respiratory mortality (Indicator 40701)
+# Day 2: C. difficile (ukhsadatR)
+# Day 3: MMR coverage (Indicator 30309)
+# Day 4: North‑South grouping of Day 1 data
+```

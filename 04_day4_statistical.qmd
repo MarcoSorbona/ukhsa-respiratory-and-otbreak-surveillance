@@ -1,0 +1,487 @@
+---
+title: "Day 4: Statistical Comparison – North vs South Respiratory Mortality"
+author: "Marco Sorbona, PhD"
+date: "March 2026"
+format: 
+  html:
+    toc: true
+    code-fold: false
+    theme: cosmo
+editor: visual
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+#| label: setup-day4
+#| include: false
+
+library(tidyverse)
+library(plotly)
+library(knitr)
+library(DT)
+library(scales)
+library(broom)
+library(effectsize)
+library(htmltools)
+
+theme_set(theme_minimal())
+
+# Load the Noth-South data
+north_south_data <- readRDS("data/north_south_data.rds")
+
+```
+
+## Task
+
+The North‑South divide in health outcomes is well documented, but this analysis tests whether the difference in respiratory mortality is statistically significant. The question is whether the observed inequality could have occurred by chance.
+
+**Rationale**: Statistical tests quantify the probability that an observed difference is due to random variation. This moves beyond descriptive observation to inferential evidence.
+
+### Research Question
+
+> *"Is there a statistically significant difference in respiratory mortality rates between northern and southern regions of England?"*
+
+### Hypotheses
+
+-   **Null hypothesis (H₀):** There is no difference in mean mortality rates between North and South
+-   **Alternative hypothesis (H₁):** There is a difference in mean mortality rates between North and South
+
+**Rationale**: Formal hypotheses provide a framework for statistical testing. The null hypothesis assumes no effect; the alternative proposes an effect. The test determines which is supported by the data.
+
+------------------------------------------------------------------------
+
+## Data Overview
+
+The summary table shows the number of regions, observations, mean rates, standard deviations, and minimum and maximum values for each group.
+
+**Rationale**: Understanding the basic properties of each group is essential before conducting statistical tests. This table confirms the North has a higher mean rate and greater variability.
+
+```{r}
+#| label: data-summary
+#| tbl-cap: "Summary statistics by region group"
+
+north_south_data |> 
+  group_by(region_group) |> 
+  summarise(
+    n_regions = n_distinct(region),
+    n_observations = n(),
+    mean_rate = mean(mortality_rate, na.rm = TRUE),
+    sd_rate = sd(mortality_rate, na.rm = TRUE),
+    min_rate = min(mortality_rate, na.rm = TRUE),
+    max_rate = max(mortality_rate, na.rm = TRUE)
+  ) |> 
+  mutate(across(where(is.numeric), ~round(., 1))) |> 
+  kable(caption = "Summary statitics by region group")
+
+```
+
+```{r}
+#| label: region-check
+#| include: false
+
+# Verify region assignment 
+region_table <- north_south_data |> 
+  distinct(region, region_group) |> 
+  arrange(region_group, region)
+
+print("Region groupings: ")
+print(region_table)
+
+```
+
+------------------------------------------------------------------------
+
+## Visualising the difference
+
+### Boxplot: Distribution of Mortality Rates
+
+The boxplot displays the distribution of mortality rates for each group, showing median, quartiles, and outliers.
+
+**Rationale**: A boxplot provides an immediate visual comparison of central tendency and spread. It confirms the North has higher rates and suggests the difference is substantial.
+
+```{r}
+#| label: boxplot
+#| fig-cap: "Distribution of respiratory mortality rates: North vs South"
+
+p_box <- ggplot(
+  north_south_data,
+  aes(x = region_group, y = mortality_rate, fill = region_group)
+) +
+  geom_boxplot(alpha = 0.7) +
+  scale_fill_manual(values = c("North" = "#e74c3c", "South" = "#3498db")) +
+  labs(
+    title = "Respiratory mortality rates by region group",
+    subtitle = "North shows consistently higher rates and greater variability",
+    x = "",
+    y = "Rate per 100,000",
+    fill = ""
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+ggplotly(p_box, tooltip = c("region_group", "mortality_rate"))
+```
+
+### Time Series: North vs South Over Time
+
+The time series plot shows annual mean rates for each group with 95% confidence intervals represented by shaded bands.
+
+**Rationale**: This plot reveals whether the gap is consistent over time or driven by specific years. Confidence bands show the precision of each annual estimate. Non‑overlapping bands across most years support the hypothesis of a sustained difference.
+
+```{r}
+#| label: timeseries-ci
+#| fig-cap: "North‑South divergence in respiratory mortality with 95% confidence bands"
+
+# Calculate annual means and confidence intervals by group
+annual_ci <- north_south_data |>
+  group_by(region_group, year) |>
+  summarise(
+    mean_rate = mean(mortality_rate, na.rm = TRUE),
+    se = sd(mortality_rate, na.rm = TRUE) / sqrt(n()),
+    ci_lower = mean_rate - 1.96 * se,
+    ci_upper = mean_rate + 1.96 * se,
+    .groups = "drop"
+  )
+
+# Create plot with confidence ribbons
+p_ts_ci <- ggplot(annual_ci, aes(x = year, y = mean_rate, color = region_group, fill = region_group)) +
+  # Confidence interval ribbons
+  geom_ribbon(aes(ymin = ci_lower, ymax = ci_upper), alpha = 0.2, color = NA) +
+  # Mean lines
+  geom_line(linewidth = 1) +
+  geom_point(size = 2) +
+  scale_color_manual(values = c("North" = "#e74c3c", "South" = "#3498db")) +
+  scale_fill_manual(values = c("North" = "#e74c3c", "South" = "#3498db")) +
+  scale_x_continuous(breaks = seq(2000, 2025, 5)) +
+  labs(
+    title = "North‑South divide in respiratory mortality",
+    subtitle = "Lines show mean rates; shaded bands show 95% confidence intervals",
+    x = "Year",
+    y = "Mean rate per 100,000",
+    color = "",
+    fill = ""
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+
+# Make interactive
+ggplotly(p_ts_ci, tooltip = c("year", "region_group", "mean_rate", "ci_lower", "ci_upper"))
+```
+
+------------------------------------------------------------------------
+
+## Statistical Testing
+
+### Assumption Checks
+
+Before running a t‑test, the variance ratio is calculated to compare the spread of the two groups.
+
+**Rationale**: The standard t‑test assumes equal variances. The variance ratio tests this assumption. A ratio close to 1 indicates similar spread, supporting the use of standard methods. A ratio \>2 or \<0.5 would suggest unequal variances and require adjustment.
+
+```{r}
+#| label: assumption-checks
+
+# Extract data for each group
+north_data <- north_south_data |> 
+  filter(region_group == "North") |> 
+  pull(mortality_rate)
+
+south_data <- north_south_data |> 
+  filter(region_group == "South") |> 
+  pull(mortality_rate)
+
+# Variance ratio check
+var_north <- var(north_data, na.rm = TRUE)
+var_south <- var(south_data, na.rm = TRUE)
+var_ratio <- var_north / var_south
+
+# Create interpretation table
+var_table <- data.frame(
+  Group = c("North", "South", "Ratio"),
+  Variance = c(
+    round(var_north, 2),
+    round(var_south, 2),
+    round(var_ratio, 2)
+  ),
+  Interpretation = c(
+    "Spread of North mortality rates",
+    "Spread of South mortality rates",
+    case_when(
+      var_ratio > 2 ~ "> 2: Variances very different (violates t-test assumption)",
+      var_ratio < 0.5 ~ "< 0.5: Variances very different (violates t-test assumption)",
+      TRUE ~ "~1: Variances similar (t-test assumption holds)"
+    )
+  )
+)
+
+kable(var_table, caption = "Variance ratio test: comparing spread between groups")
+```
+
+### Understanding the Variance Ratio
+
+The **variance ratio** compares how spread out the data is in two groups:
+
+-   A ratio of **1.0** means equal variance
+-   A ratio **\>2 or \<0.5** suggests variances are very different (violates the equal‑variance assumption of the standard t‑test)
+-   A ratio **close to 1** (like ours at `r round(var_ratio, 2)`) means the groups have comparable variability
+
+Our ratio of **`r round(var_ratio, 2)`** is well within the acceptable range. This means both groups have similar underlying spread, so any difference we detect is likely a real difference in central tendency, not an artefact of different variability.
+
+### Why Use Welch's t‑test?
+
+The standard t‑test assumes equal variances between groups. While our variance ratio suggests this assumption holds, I used **Welch's t‑test**, which does **not** assume equal variances. This is now considered best practice because:
+
+1.  It gives correct results whether variances are equal or not
+2.  It is robust to minor violations of assumptions
+3.  It is recommended by statisticians as the default choice
+
+Welch's test adjusts the degrees of freedom to account for any differences in variance, making it more reliable with real‑world data.
+
+### Two‑Sample t‑test (Welch)
+
+```{r}
+#| label: t-test
+
+t_test_results <- t.test(mortality_rate ~ region_group, data = north_south_data)
+
+# Extract exact p-value
+exact_p <- t_test_results$p.value
+
+# Tidy the output for display
+t_test_tidy <- tidy(t_test_results) |> 
+  mutate(across(where(is.numeric), ~round(., 3)))
+
+kable(t_test_tidy, caption = "Welch two-sample t-test results")
+
+```
+
+### Understanding p-value
+
+The p-value from this test is **`r format(exact_p, scientific = TRUE)`**. This is **not zero**: it is an extremely small number that R displays in scientific notation.
+
+| Representation | Meaning |
+|----|----|
+| **`r format(exact_p, scientific = TRUE)`** | 4.33 × 10^-174^ |
+| **In words** | 4.33 divided by a 1 with 174 zeros |
+| **Statistical convention** | p \< 0.001 |
+
+To put this in context: there are about 10^80^ atoms in the observable universe. This result is about 100 billion billion times more unlikely than randomly picking the correct atom. There is **no realistic doubt** that the North‑South difference is real.
+
+### Effect Size (Cohen's d)
+
+Statistical significance doesn't always mean practical significance. Cohen's d measures the size of the difference in standard deviation units, with confidence intervals to show precision.
+
+```{r}
+#| label: effect-size
+#| tbl-cap: "Cohen's d effect size"
+
+# Calculate Cohen's d with confidence intervals
+cohens_d_results <- cohens_d(mortality_rate ~ region_group, 
+                             data = north_south_data,
+                             ci = 0.95)
+
+# cohens_d_results |> 
+#   mutate(
+#     across(where(is.numeric), ~round(., 2))
+#   ) |> 
+#   kable(caption = "Cohen's d results with confidence intervals")
+
+# Extract values for reporting
+d_value <- cohens_d_results$Cohens_d
+d_ci_low <- cohens_d_results$CI_low
+d_ci_high <- cohens_d_results$CI_high
+d_interpretation <- interpret_cohens_d(d_value)
+
+# Create a clean table for display
+d_table <- data.frame(
+  Measure = c(
+    "Cohen's d",
+    "95% CI (lower)",
+    "95% CI (upper)",
+    "Effect size interpretation"
+  ),
+  Value = c(
+    round(d_value, 2),
+    round(d_ci_low, 2),
+    round(d_ci_high, 2),
+    d_interpretation
+  )
+)
+
+kable(d_table, caption = "Cohen's effect size with confidence intervals")
+```
+
+### What the Effect Size Tells Us
+
+Cohen's d of **`r round(d_value, 2)`** (95% CI: `r round(d_ci_low, 2)` to `r round(d_ci_high, 2)`) is a **`r d_interpretation`** effect size. This means:
+
+-   The North is **2.4 standard deviations higher** than the South
+-   There is minimal overlap between the two distributions
+-   This is not just statistically significant: it's a **substantial public health gap**
+
+The confidence interval tells us we can be 95% confident the true effect size lies between `r round(d_ci_low, 2)` and `r round(d_ci_high, 2)`. Even the lower bound represents a large effect, confirming the robustness of our finding.
+
+------------------------------------------------------------------------
+
+## Confidence Intervals
+
+The confidence interval around Cohen's d shows the range of plausible values for the true effect size.
+
+**Rationale**: A confidence interval provides more information than a point estimate alone. It indicates the precision of the estimate and whether the effect could be small, medium, or large.
+
+```{r}
+#| label: ci-plot
+#| fig-cap: "Group means with 95% confidence intervals"
+
+group_ci <- north_south_data |> 
+  group_by(region_group) |> 
+  summarise(
+    mean_rate = mean(mortality_rate, na.rm = TRUE),
+    se = sd(mortality_rate, na.rm = TRUE) / sqrt(n()),
+    ci_lower = mean_rate - 1.96 * se,
+    ci_upper = mean_rate + 1.96 * se,
+    .groups = "drop"
+  )
+
+p_ci <-
+  ggplot(
+    group_ci,
+    aes(x = region_group, y = mean_rate, color = region_group)
+  ) +
+  geom_point(size = 3) +
+  geom_errorbar(aes(ymin = ci_lower, ymax = ci_upper), width = 0.2, linewidth = 1) +
+  scale_color_manual(values = c("North" = "#e74c3c", "South" = "#3498db")) +
+  labs(
+    title = "Group means with 95% confidence intervals",
+    subtitle = "Non-overlapping intervals suggest a genuine difference",
+    x = "",
+    y = "Mean rate per 100,000",
+    color = ""
+  ) +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+ggplotly(p_ci, tooltip = c("region_group", "mean_rate", "ci_lower", "ci_upper"))
+```
+
+------------------------------------------------------------------------
+
+## Summary of Findings
+
+The summary table consolidates all key statistics: group means, difference, confidence intervals, p‑values, effect size, and variance ratio.
+
+**Rationale**: A single table allows readers to see all results at once, facilitating comparison and interpretation.
+
+```{r}
+#| label: summary-table
+#| tbl-cap: "Statistical summary"
+
+mean_north <- mean(north_data, na.rm = TRUE)
+mean_south <- mean(south_data, na.rm = TRUE)
+mean_diff <- mean_north - mean_south
+
+data.frame(
+  Measure = c(
+    "North mean rate",
+    "South mean rate",
+    "Difference",
+    "95% CI (lower)",
+    "95% CI (upper)",
+    "p-value (exact)",
+    "p-value (reported)",
+    "Cohen's d",
+    "d 95% CI",
+    "Effect size",
+    "Variance ratio"
+  ),
+  Value = c(
+    paste0(round(mean(north_data, na.rm = TRUE), 1), " per 100k"),
+    paste0(round(mean(south_data, na.rm = TRUE), 1), " per 100k"),
+    paste0(round(mean_diff, 1), " per 100k"),
+    paste0(round(t_test_tidy$conf.low, 1), " per 100k"),
+    paste0(round(t_test_tidy$conf.high, 1), " per 100k"),
+    format(exact_p, scientific = TRUE),
+    "< 0.001",
+    round(d_value, 2),
+    paste0("[", round(d_ci_low, 2), ", ", round(d_ci_high, 2), "]"),
+    d_interpretation,
+    round(var_ratio, 2)
+  )
+) |>
+  kable(caption = "Statistical summary")
+
+```
+
+## Interpretation
+
+### What the Variance Ratio Tells Us
+
+The near‑equal variance (`r round(var_ratio, 2)`) between North and South strengthens our confidence in the t‑test results. It means the difference we observe is not driven by one group being more volatile or having more extreme outliers, both groups have similar underlying variability. The sustained difference in means therefore represents a genuine, structural inequality.
+
+### What the Welch t‑test Shows
+
+| Finding | Interpretation |
+|----|----|
+| **Mean difference: 14.1 per 100,000** | The North has 14.1 more respiratory deaths per 100,000 than the South (about **48% higher**) |
+| **95% CI \[13.3, 14.9\]** | We can be 95% confident the true difference lies in this range |
+| **p = 4.33 × 10^-147^** | The probability of observing this difference by chance is **less than 1 in 10^174^** : effectively zero |
+| **Cohen's d = 2.4 \[2.2, 2.6\]** | This is a **large** effect size (public health significance) |
+
+The analysis provides **overwhelming evidence** that northern regions have consistently higher respiratory mortality than southern regions. This is not a random fluctuation but a sustained, measurable inequality of substantial magnitude.
+
+### Note on COVID‑19 Impact
+
+The respiratory mortality indicator used here (ICD‑10 J00–J99) does **not** include COVID‑19 deaths, which are coded separately (U07.1, U07.2). The observed patterns in 2020–2021 reflect:
+
+-   Reduced transmission of other respiratory infections during lockdowns
+
+-   Potential under‑diagnosis of non‑COVID respiratory conditions
+
+-   Reclassification of deaths that might previously have been coded as pneumonia
+
+This does not contradict the pandemic's impact on overall mortality: it simply shows that different indicators capture different aspects of the same event.
+
+------------------------------------------------------------------------
+
+## Public Health Implications
+
+1.  **Targeted resources**: Northern regions require additional investment in respiratory health services
+2.  **Inequality monitoring**: The persistent gap suggests underlying structural factors (deprivation, housing, smoking rates)
+3.  **Policy focus**: Interventions should address root causes, not just symptoms
+4.  **Quantified burden**: The 14.1 excess deaths per 100,000 represents thousands of preventable deaths annually
+
+------------------------------------------------------------------------
+
+## Limitations
+
+-   **Ecological fallacy**: Regional averages mask within‑region variation
+-   **Confounding factors**: Not adjusted for age, deprivation, smoking prevalence
+-   **Grouping choice**: Excluding Midlands is an analytical decision; different groupings might yield different results
+-   **Multiple testing**: Not an issue here, but worth noting for transparency
+
+------------------------------------------------------------------------
+
+## Conclusion
+
+The North‑South divide in respiratory mortality is **statistically significant, substantial, and sustained**. The difference of 14.1 per 100,000 (48% higher in the North) represents a large effect size (Cohen's d = 2.4, 95% CI \[2.2, 2.6\]) that has persisted for over two decades. The near‑equal variance between groups confirms this is not an artefact of different spread, and the astronomically small p-value (4.33 × 10^-174^) leaves no reasonable doubt about its reality. This quantifies the inequality and provides an indisputable evidence base for targeted public health action in northern regions.
+
+------------------------------------------------------------------------
+
+## Appendix
+
+```{r}
+#| label: data-notes
+#| include: true
+
+# Data: Respiratory mortality (Indicator 40701)
+# Source: Fingertips / UKHSA
+# Groups: 
+#   North: North East, North West, Yorkshire and the Humber
+#   South: South East, South West, London, East of England
+# Period: 2001-2024
+# Method: Welch two‑sample t‑test (unequal variances not assumed)
+# Effect size: Cohen's d with 95% CI from effectsize package
+# Variance ratio: 0.92 (equal variance assumption holds)
+# Exact p-value: 4.327337e-174
+```
