@@ -17,37 +17,23 @@ All analyses are fully reproducible. Data are downloaded once via `00_setup.qmd`
 
 ## Project Structure
 
-+----------------+-------------------------+------------------------------+----------------------------------------------------------------------------------------------------------------+
-| Day            | Title                   | Focus                        | Output                                                                                                         |
-+================+=========================+==============================+================================================================================================================+
-| 1              | Routine Surveillance    | Respiratory mortality trends | [HTML](https://marcosorbona.github.io/ukhsa-respiratory-and-outbreak-surveillance/01_day1_surveillance.html)   |
-+----------------+-------------------------+------------------------------+----------------------------------------------------------------------------------------------------------------+
-| 2              | Outbreak Investigation  | C. difficile detection       | [HTML](https://marcosorbona.github.io/ukhsa-respiratory-and-outbreak-surveillance/02_day2_outbreak.html)       |
-+----------------+-------------------------+------------------------------+----------------------------------------------------------------------------------------------------------------+
-| 3              | Local Authority Request | MMR coverage in Leicester    | [HTML](https://marcosorbona.github.io/ukhsa-respiratory-and-outbreak-surveillance/03_day3_data_request.html)   |
-+----------------+-------------------------+------------------------------+----------------------------------------------------------------------------------------------------------------+
-| 4              | Statistical Comparison  | North‑South hypothesis test  | [HTML](https://marcosorbona.github.io/ukhsa-respiratory-and-outbreak-surveillance/04_day4_statistical.html)    |
-+----------------+-------------------------+------------------------------+----------------------------------------------------------------------------------------------------------------+
-| 5              | Team Briefing           | One‑page synthesis           | [HTML](https://marcosorbona.github.io/ukhsa-respiratory-and-outbreak-surveillance/05_day5_briefing.html)       |
-|                |                         |                              |                                                                                                                |
-|                |                         |                              | [HTML](https://marcosorbona.github.io/ukhsa-respiratory-and-outbreak-surveillance/05_day5_briefing.html)       |
-+----------------+-------------------------+------------------------------+----------------------------------------------------------------------------------------------------------------+
-| 6              | Interactive Dashboard   | Exploratory data tool        | [Dashboard](https://marcosorbona.github.io/ukhsa-respiratory-and-outbreak-surveillance/06_day6_dashboard.html) |
-+----------------+-------------------------+------------------------------+----------------------------------------------------------------------------------------------------------------+
+| Day | Title | Focus | Output |
+|------------------|------------------|------------------|------------------|
+| 1 | Routine Surveillance | Respiratory mortality trends | [HTML](https://marcosorbona.github.io/ukhsa-respiratory-and-outbreak-surveillance/01_day1_surveillance.html) |
+| 2 | Outbreak Investigation | C. difficile detection | [HTML](https://marcosorbona.github.io/ukhsa-respiratory-and-outbreak-surveillance/02_day2_outbreak.html) |
+| 3 | Local Authority Request | MMR coverage in Leicester | [HTML](https://marcosorbona.github.io/ukhsa-respiratory-and-outbreak-surveillance/03_day3_data_request.html) |
+| 4 | Statistical Comparison | North‑South hypothesis test | [HTML](https://marcosorbona.github.io/ukhsa-respiratory-and-outbreak-surveillance/04_day4_statistical.html) |
+| 5 | Team Briefing | One‑page synthesis | [HTML](https://marcosorbona.github.io/ukhsa-respiratory-and-outbreak-surveillance/05_day5_briefing.html) |
+| 6 | Interactive Dashboard | Exploratory data tool | [Dashboard](https://marcosorbona.github.io/ukhsa-respiratory-and-outbreak-surveillance/06_day6_dashboard.html) |
 
 ## Data Sources
 
-+----------------------------------+----------------------------------------------------------------+
-| Source                           | Description                                                    |
-+==================================+================================================================+
-| **Fingertips**                   | Public health indicators (respiratory mortality, MMR coverage) |
-+----------------------------------+----------------------------------------------------------------+
-| **UKHSA Data Dashboard**         | Infectious disease surveillance (C. difficile)                 |
-+----------------------------------+----------------------------------------------------------------+
-| **ONS**                          | Population estimates and boundaries                            |
-+----------------------------------+----------------------------------------------------------------+
-| **NHS Digital**                  | Hospital Episode Statistics                                    |
-+----------------------------------+----------------------------------------------------------------+
+| Source | Description |
+|------------------------------------|------------------------------------|
+| **Fingertips** | Public health indicators (respiratory mortality, MMR coverage) |
+| **UKHSA Data Dashboard** | Infectious disease surveillance (C. difficile) |
+| **ONS** | Population estimates and boundaries |
+| **NHS Digital** | Hospital Episode Statistics |
 
 ## Key Findings
 
