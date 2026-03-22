@@ -44,7 +44,6 @@ This briefing summarises four days of analysis on respiratory mortality and MMR 
 
 ```{r}
 #| label: key-chart
-#| include: false
 #| fig-cap: "North-South respiratory mortality gap (2001–2024)"
 #| fig-width: 8
 #| fig-height: 5
