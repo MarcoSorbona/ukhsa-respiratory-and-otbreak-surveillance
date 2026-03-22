@@ -26,7 +26,7 @@ All analyses are fully reproducible. Data are downloaded once via `00_setup.qmd`
 | 5 | Team Briefing | One‑page synthesis | [HTML](https://marcosorbona.github.io/ukhsa-respiratory-and-outbreak-surveillance/05_day5_briefing.html) |
 | 6 | Interactive Dashboard | Exploratory data tool | [Dashboard](https://marcosorbona.github.io/ukhsa-respiratory-and-outbreak-surveillance/06_day6_dashboard.html) |
 
-## Data Sources
+## Data Sources 
 
 | Source | Description |
 |------------------------------------|------------------------------------|

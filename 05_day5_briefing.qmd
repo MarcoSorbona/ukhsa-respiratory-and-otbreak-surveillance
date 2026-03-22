@@ -15,7 +15,7 @@ editor_options:
 
 ```{r}
 #| label: setup-day5
-#| include: false
+#| include: true
 
 library(tidyverse)
 library(ggplot2)
@@ -63,7 +63,7 @@ ggplot(annual_group, aes(x = year, y = mean_rate, color = region_group)) +
   scale_x_continuous(breaks = seq(2000, 2025, 5)) +
   scale_y_continuous(labels = comma) +
   labs(
-    title = "North‑South divide in respiratory mortality",
+    title = "North - South divide in respiratory mortality",
     subtitle = "Northern regions consistently higher over two decades",
     x = "Year",
     y = "Deaths per 100,000",
