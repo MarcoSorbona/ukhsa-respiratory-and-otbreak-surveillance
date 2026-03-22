@@ -18,18 +18,18 @@ All analyses are fully reproducible. Data are downloaded once via `00_setup.qmd`
 ## Project Structure
 
 | Day | Title | Focus | Output |
-|-----------------|------------------|------------------|--------------------|
-| 1 | Routine Surveillance | Respiratory mortality trends | [HTML](01-day1-surveillance.html) |
-| 2 | Outbreak Investigation | C. difficile detection | [HTML](02-day2-outbreak.html) |
-| 3 | Local Authority Request | MMR coverage in Leicester | [HTML](03-day3-data-request.html) |
-| 4 | Statistical Comparison | North‑South hypothesis test | [HTML](04-day4-statistical.html) |
-| 5 | Team Briefing | One‑page synthesis | [PDF](05-day5-briefing.pdf) |
-| 6 | Interactive Dashboard | Exploratory data tool | [Dashboard](06-day6-dashboard.html) |
+|----|----|----|----|
+| 1 | Routine Surveillance | Respiratory mortality trends | [HTML](01_day1_surveillance.html) |
+| 2 | Outbreak Investigation | C. difficile detection | [HTML](02_day2_outbreak.html) |
+| 3 | Local Authority Request | MMR coverage in Leicester | [HTML](03_day3_data_request.html) |
+| 4 | Statistical Comparison | North‑South hypothesis test | [HTML](04_day4_statistical.html) |
+| 5 | Team Briefing | One‑page synthesis | [HTML](05_day5_briefing.pdf) |
+| 6 | Interactive Dashboard | Exploratory data tool | [Dashboard](06_day6_dashboard.html) |
 
 ## Data Sources
 
 | Source | Description |
-|----------------------------|--------------------------------------------|
+|----|----|
 | **Fingertips** | Public health indicators (respiratory mortality, MMR coverage) |
 | **UKHSA Data Dashboard** | Infectious disease surveillance (C. difficile) |
 | **ONS** | Population estimates and boundaries |
@@ -44,7 +44,7 @@ All analyses are fully reproducible. Data are downloaded once via `00_setup.qmd`
 
 ## Reproducibility
 
-All code is available on [GitHub](https://github.com/MarcoSorbona/ukhsa-respiratory-surveillance).
+All code is available on [GitHub](https://github.com/MarcoSorbona/ukhsa-respiratory-and-otbreak-surveillance).
 
 To reproduce:
 
@@ -62,4 +62,4 @@ To reproduce:
 ## Contact
 
 Marco Sorbona, PhD\
-[LinkedIn](https://linkedin.com/in/marco-sorbona) \| [GitHub](https://github.com/MarcoSorbona)
+[LinkedIn](https://linkedin.com/in/marco-sorbona-PhD) \| [GitHub](https://github.com/MarcoSorbona)

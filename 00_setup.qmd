@@ -62,6 +62,8 @@ The `time_period` column contains both single-year estimates ("2024") and threeâ
 #| label: download-cdiff-data
 #| include: false
 
+library(ukhsadatR)
+
 # Create a vector of all UKHSA regions
 ukhsa_regions <- c(
   "East Midlands",
