@@ -43,7 +43,7 @@ A 6‑day simulated analysis for **UKHSA Field Services**, demonstrating R skill
 
 | Aspect | Detail |
 |------------------------------------|------------------------------------|
-| **R version** | 4.5.3 |
+| **R version** | 4.5.2 |
 | **Key packages** | `tidyverse`, `plotly`, `flexdashboard`, `leaflet`, `fingertipsR`, `ukhsadatR`, `effectsize` |
 | **Colour schemes** | Viridis (colourblind‑safe) |
 | **Interactive elements** | `plotly` for charts, `leaflet` for maps, `DT` for tables |
@@ -68,7 +68,7 @@ quarto::quarto_render("06_day6_dashboard.Rmd")
 ## 📬 Contact
 
 **Marco Sorbona, PhD**\
-[LinkedIn](https://linkedin.com/in/marco-sorbona) \| [GitHub](https://github.com/MarcoSorbona)
+[LinkedIn](https://linkedin.com/in/marco-sorbona-phd) \| [GitHub](https://github.com/MarcoSorbona)
 
 ------------------------------------------------------------------------
 
