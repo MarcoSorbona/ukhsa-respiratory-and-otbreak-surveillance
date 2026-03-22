@@ -35,7 +35,7 @@ This briefing summarises four days of analysis on respiratory mortality and MMR 
 ## Key Findings
 
 | Finding | Detail |
-|----|----|
+|------------------------------------|------------------------------------|
 | **North‑South divide** | Northern regions have 14.1 more respiratory deaths per 100,000 than the South – a 48% higher rate |
 | **Statistical significance** | p \< 0.001; Cohen's d = 2.4 (large effect) |
 | **Persistent inequality** | The gap has remained stable for over two decades |
@@ -44,6 +44,7 @@ This briefing summarises four days of analysis on respiratory mortality and MMR 
 
 ```{r}
 #| label: key-chart
+#| include: false
 #| fig-cap: "North-South respiratory mortality gap (2001–2024)"
 #| fig-width: 8
 #| fig-height: 5
