@@ -2,7 +2,7 @@
 
 A 6‑day simulated analysis for **UKHSA Field Services**, demonstrating R skills in public health surveillance, outbreak investigation, and data communication.
 
-[**View the Live Dashboard →**](https://marcoSorbona.github.io/ukhsa-respiratory-surveillance/)
+[**View the Live Dashboard →**](https://github.com/MarcoSorbona/ukhsa-respiratory-and-otbreak-surveillance/)
 
 ------------------------------------------------------------------------
 
@@ -10,12 +10,12 @@ A 6‑day simulated analysis for **UKHSA Field Services**, demonstrating R skill
 
 | Day | Title | Focus | Output |
 |------------------|------------------|------------------|-------------------|
-| 1 | Routine Surveillance | Respiratory mortality trends | [HTML](01-day1-surveillance.html) |
-| 2 | Outbreak Investigation | C. difficile detection | [HTML](02-day2-outbreak.html) |
-| 3 | Local Authority Request | MMR coverage in Leicester | [HTML](03-day3-data-request.html) |
-| 4 | Statistical Comparison | North‑South hypothesis test | [HTML](04-day4-statistical.html) |
-| 5 | Team Briefing | One‑page synthesis | [PDF](05-day5-briefing.pdf) |
-| 6 | Interactive Dashboard | Exploratory data tool | [Dashboard](06-day6-dashboard.html) |
+| 1 | Routine Surveillance | Respiratory mortality trends | [HTML](01_day1_surveillance.html) |
+| 2 | Outbreak Investigation | C. difficile detection | [HTML](02_day2_outbreak.html) |
+| 3 | Local Authority Request | MMR coverage in Leicester | [HTML](03_day3_data_request.html) |
+| 4 | Statistical Comparison | North‑South hypothesis test | [HTML](04_day4_statistical.html) |
+| 5 | Team Briefing | One‑page synthesis | [HTML](05_day5_briefing.html) |
+| 6 | Interactive Dashboard | Exploratory data tool | [Dashboard](06_day6_dashboard.html) |
 
 ------------------------------------------------------------------------
 
