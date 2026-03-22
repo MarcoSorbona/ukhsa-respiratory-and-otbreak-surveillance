@@ -422,7 +422,7 @@ The near‑equal variance (`r round(var_ratio, 2)`) between North and South stre
 ### What the Welch t‑test Shows
 
 | Finding | Interpretation |
-|------------------------------------|------------------------------------|
+|----|----|
 | **Mean difference: 14.1 per 100,000** | The North has 14.1 more respiratory deaths per 100,000 than the South (about **48% higher**) |
 | **95% CI \[13.3, 14.9\]** | We can be 95% confident the true difference lies in this range |
 | **p = 4.33 × 10^-147^** | The probability of observing this difference by chance is **less than 1 in 10^174^** : effectively zero |
