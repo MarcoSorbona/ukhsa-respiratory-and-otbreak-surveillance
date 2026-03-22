@@ -615,10 +615,10 @@ datatable(
 
 All analyses can be reproduced by running the `00-setup.qmd` script, which downloads all data and saves it as RDS files. The dashboard loads these saved files, ensuring consistency across days.
 
-**GitHub Repository:** [github.com/MarcoSorbona/ukhsa-respiratory-surveillance](https://github.com/MarcoSorbona/ukhsa-respiratory-surveillance)
+**GitHub Repository:** [github.com/MarcoSorbona/ukhsa-respiratory-surveillance](https://github.com/MarcoSorbona/ukhsa-respiratory-and-outbreak-surveillance)
 
 ### Software Environment
 
--   **R version:** 4.5.3
--   **RStudio version:** 2024.12.0+467
--   **Operating system:** Windows 11
+-   **R version:** 4.5.2
+-   **RStudio version:** 2026.01.0+392
+-   **Operating system:** Windows 10
