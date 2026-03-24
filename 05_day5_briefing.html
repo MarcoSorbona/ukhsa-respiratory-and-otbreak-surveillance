@@ -22,41 +22,6 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-/* CSS for syntax highlighting */
-html { -webkit-text-size-adjust: 100%; }
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-  }
-pre.numberSource { margin-left: 3em;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-}
 </style>
 
 
@@ -116,14 +81,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="background" class="level2">
 <h2 class="anchored" data-anchor-id="background">Background</h2>
-<p>This briefing summarises four days of analysis on respiratory mortality and MMR vaccination coverage in England. Data are drawn from the Fingertips public health database (Indicators 40701 and 30309) and cover the period 2001–2024.</p>
+<p>This briefing summarises analysis on respiratory mortality and MMR vaccination coverage in England. Data are drawn from the <strong>Fingertips public health database</strong> (Indicators 40701 and 30309) and the <strong>UKHSA dashboard</strong>, covering 2001 - 2024.</p>
+<p>The analysis was structured as a simulated week of work in UKHSA Field Services, responding to a local authority request and identifying regional inequalities and outbreak signals.</p>
+<hr>
 </section>
 <section id="key-findings" class="level2">
 <h2 class="anchored" data-anchor-id="key-findings">Key Findings</h2>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 50%">
-<col style="width: 50%">
+<col style="width: 52%">
+<col style="width: 47%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -133,52 +100,98 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </thead>
 <tbody>
 <tr class="odd">
-<td><strong>North‑South divide</strong></td>
-<td>Northern regions have 14.1 more respiratory deaths per 100,000 than the South – a 48% higher rate</td>
+<td><strong>North‑South mortality gap</strong></td>
+<td>Northern regions have 14.1 more respiratory deaths per 100,000 than the South: a <strong>48% higher rate</strong> [1]. The gap has persisted for over two decades.</td>
 </tr>
 <tr class="even">
 <td><strong>Statistical significance</strong></td>
-<td>p &lt; 0.001; Cohen’s d = 2.4 (large effect)</td>
+<td>p &lt; 0.001; Cohen’s d = 2.4 (large effect).</td>
 </tr>
 <tr class="odd">
-<td><strong>Persistent inequality</strong></td>
-<td>The gap has remained stable for over two decades</td>
+<td><strong>Leicester MMR decline</strong></td>
+<td>Coverage fell from 95.8% (2013) to 88.4% (2024), an <strong>8‑point drop</strong>. Leicester has been below the WHO 95% herd immunity threshold for five consecutive years [2].</td>
 </tr>
 <tr class="even">
-<td><strong>Leicester MMR decline</strong></td>
-<td>Coverage fell from 95.8% (2013) to 88.4% (2024) – an 8‑point drop</td>
-</tr>
-<tr class="odd">
-<td><strong>Outbreak signal</strong></td>
-<td>East Midlands showed 80% of weeks exceeding Poisson threshold for C. difficile</td>
+<td><strong>C. difficile outbreak signal</strong></td>
+<td>East Midlands showed <strong>80% of weeks exceeding</strong> the Poisson threshold, warranting investigation.</td>
 </tr>
 </tbody>
 </table>
+<hr>
+</section>
+<section id="interpretation" class="level2">
+<h2 class="anchored" data-anchor-id="interpretation">Interpretation</h2>
+<section id="north---south-respiratory-mortality-gap" class="level3">
+<h3 class="anchored" data-anchor-id="north---south-respiratory-mortality-gap">North - South Respiratory Mortality Gap</h3>
+<p>The North has 14.1 additional respiratory deaths per 100,000 compared to the South: a 48% higher rate [1]. Asthma + Lung UK’s <em>ICS Respiratory Review</em> shows that rates of emergency admissions and deaths from lung conditions are much higher in northern areas such as Blackpool and Liverpool, where death rates are over <strong>two times higher</strong> than in more affluent areas like Richmond in London [3].</p>
+<p>Six out of the 10 areas with the highest rates of emergency admissions and deaths from lung conditions are in the Northwest of England [1]. The drivers are structural: higher smoking rates, worse air pollution, poorer housing, and less access to early diagnosis [6].</p>
+<p>The gap has persisted for over two decades. A Wellcome‑funded project notes that <em>“there are deep-rooted and long-term regional health inequalities across England, with a two-year gap between the north and the south in how long people are expected to live”</em> [5].</p>
 <div class="cell">
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="05_day5_briefing_files/figure-html/key-chart-1.png" class="img-fluid figure-img" width="768"></p>
-<figcaption>North-South respiratory mortality gap (2001–2024)</figcaption>
+<p><img src="05_day5_briefing_files/figure-html/unnamed-chunk-1-1.png" class="img-fluid figure-img" width="672"></p>
+<figcaption>North‑South respiratory mortality gap (2001–2024)</figcaption>
 </figure>
 </div>
 </div>
 </div>
 </section>
-<section id="interpretation" class="level2">
-<h2 class="anchored" data-anchor-id="interpretation">Interpretation</h2>
-<p>The North has <strong>14.1 additional respiratory deaths per 100,000</strong> compared to the South. This difference has persisted for over 20 years and is highly statistically significant (p &lt; 0.001). The effect size (Cohen’s d = 2.4) indicates a large and practically meaningful gap.</p>
-<p>Leicester’s MMR coverage has declined from meeting the WHO 95% target in 2013 to 88.4% in 2024 – an 8‑point drop that leaves the city below the herd immunity threshold.</p>
-<p>The East Midlands showed an outbreak signal for C. difficile, with 80% of comparable weeks exceeding expected levels – warranting investigation.</p>
+<section id="leicester-mmr-decline" class="level3">
+<h3 class="anchored" data-anchor-id="leicester-mmr-decline">Leicester MMR Decline</h3>
+<p>Leicester’s MMR coverage declined from 95.8% in 2013 to 88.4% in 2024. This pattern is consistent with regional trends: from 2013/14 to 2023/24, MMR1 coverage in five-year-olds decreased by 7.1 percentage points to 87.0% in Birmingham and by 3.5 percentage points to 91.9% in the West Midlands [2].</p>
+<p>The city has been below the WHO 95% herd immunity threshold for five consecutive years. According to UKHSA data, <em>“no local authority in the West Midlands had coverage exceeding the WHO target of 95% in all the routine childhood immunisations”</em> [2].</p>
+<p>This decline is significant because measles outbreaks can occur when coverage falls below 90–95% [4]. The WHO recommends 95% coverage for both MMR doses to achieve and maintain herd immunity. In the UK, measles elimination status was lost in 2019 following a resurgence of cases, highlighting the importance of maintaining high vaccination coverage across all communities.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="05_day5_briefing_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="672"></p>
+<figcaption>MMR coverage: Leicester vs East Midlands vs England</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="c.-difficile-outbreak-signal" class="level3">
+<h3 class="anchored" data-anchor-id="c.-difficile-outbreak-signal">C. difficile Outbreak Signal</h3>
+<p>Using a Poisson threshold for sparse data (mean + 1.96 × √mean), the East Midlands showed <strong>80% of weeks</strong> exceeding expected case counts. This level of sustained exceedance warrants line list requests from local trusts and further investigation.</p>
+<hr>
+</section>
 </section>
 <section id="recommendations" class="level2">
 <h2 class="anchored" data-anchor-id="recommendations">Recommendations</h2>
-<ol type="1">
-<li><strong>Target resources to northern regions</strong> – additional investment in respiratory health services is needed</li>
-<li><strong>Investigate Leicester’s MMR decline</strong> – understand local factors behind the 8‑point drop</li>
-<li><strong>Follow up C. difficile outbreak signal</strong> – request line lists from East Midlands trusts</li>
-<li><strong>Monitor inequalities quarterly</strong> – track the North‑South gap in routine surveillance</li>
-</ol>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 55%">
+<col style="width: 44%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Priority</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>1</strong></td>
+<td><strong>Target resources to northern regions</strong>: additional investment in respiratory health services, smoking cessation, and housing improvement [1]. Asthma + Lung UK calls for a <strong>£40 million spirometry recovery fund</strong> with more funding to ICSs experiencing higher levels of deprivation [6].</td>
+</tr>
+<tr class="even">
+<td><strong>2</strong></td>
+<td><strong>Investigate Leicester’s MMR decline</strong>: understand local factors behind the 8‑point drop, including vaccine confidence, access, and second‑dose uptake. The government’s 10‑year health plan should address childhood immunisation gaps [2].</td>
+</tr>
+<tr class="odd">
+<td><strong>3</strong></td>
+<td><strong>Follow up C. difficile outbreak signal</strong>: request line lists from East Midlands trusts and conduct further analysis.</td>
+</tr>
+<tr class="even">
+<td><strong>4</strong></td>
+<td><strong>Monitor inequalities quarterly</strong>: track the North‑South gap in routine surveillance [5].</td>
+</tr>
+</tbody>
+</table>
+<hr>
 </section>
 <section id="limitations" class="level2">
 <h2 class="anchored" data-anchor-id="limitations">Limitations</h2>
@@ -189,16 +202,26 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>Regional averages mask within‑area variation</li>
 </ul>
 <hr>
+</section>
+<section id="section" class="level2">
+<h2 class="anchored" data-anchor-id="section"></h2>
+</section>
+<section id="references" class="level2">
+<h2 class="anchored" data-anchor-id="references">References</h2>
+<ol type="1">
+<li><p>Asthma + Lung UK. (2025). <em>ICS Respiratory Review 2024/25</em>. Available at: <a href="https://www.asthmaandlung.org.uk/healthcare-professionals/ics-respiratory-review">asthmaandlung.org.uk/healthcare-professionals/ics-respiratory-review</a></p></li>
+<li><p>UK Parliament. (2025). <em>Vaccination: Children – Written question 36734</em>. Available at: <a href="https://questions-statements.parliament.uk/written-questions/detail/2025-03-10/36734">questions-statements.parliament.uk/written-questions/detail/2025-03-10/36734</a></p></li>
+<li><p>Asthma + Lung UK. (2023). <em>Fighting to end the lung health lottery</em>. Available at: <a href="https://www.asthmaandlung.org.uk/blog/campaigning/fighting-end-lung-health-lottery">asthmaandlung.org.uk/blog/campaigning/fighting-end-lung-health-lottery</a></p></li>
+<li><p>World Health Organization. (2024). <em>Measles</em>. Available at: <a href="https://www.who.int/news-room/fact-sheets/detail/measles">who.int/news-room/fact-sheets/detail/measles</a></p></li>
+<li><p>Wellcome. (2026). <em>North and South: Regional Health Inequalities in England – Grants Awarded</em>. Available at: <a href="https://wellcome.org/research-funding/funding-portfolio/funded-grants/north-and-south-regional-health-inequalities">wellcome.org/research-funding/funding-portfolio/funded-grants/north-and-south-regional-health-inequalities</a></p></li>
+<li><p>Asthma + Lung UK. (2025). <em>ICS respiratory review – challenges</em>. Available at: <a href="https://www.asthmaandlung.org.uk/healthcare-professionals/ics-respiratory-review/challenges">asthmaandlung.org.uk/healthcare-professionals/ics-respiratory-review/challenges</a></p></li>
+</ol>
+<hr>
 <p><strong>Prepared by:</strong> Marco Sorbona, PhD<br>
 <strong>Date:</strong> March 2026<br>
-<strong>Contact:</strong> marco.sorbona@example.com</p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Data sources:</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Day 1: Respiratory mortality (Indicator 40701)</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Day 2: C. difficile (ukhsadatR)</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Day 3: MMR coverage (Indicator 30309)</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Day 4: North‑South grouping of Day 1 data</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
+<strong>GitHub:</strong> <a href="https://github.com/MarcoSorbona/ukhsa-respiratory-and-outbreak-surveillance">MarcoSorbona/ukhsa-respiratory-and-outbreak-surveillance</a><br>
+<strong>Live dashboard:</strong> <a href="https://marcoSorbona.github.io/ukhsa-respiratory-and-outbreak-surveillance/06_day6_dashboard.html">marcoSorbona.github.io/ukhsa-respiratory-and-outbreak-surveillance/06_day6_dashboard.html</a></p>
+<p><em>Data sources: Day 1: Respiratory mortality (Indicator 40701); Day 2: C. difficile (ukhsadatR); Day 3: MMR coverage (Indicator 30309); Day 4: North‑South grouping of Day 1 data</em></p>
 </section>
 
 </main>

@@ -14,7 +14,7 @@ editor_options:
 ---
 
 ```{r}
-#| label: setup-day5
+#| label: setup
 #| include: false
 
 library(tidyverse)
@@ -22,77 +22,113 @@ library(ggplot2)
 library(scales)
 library(knitr)
 
-# Load data from previous days
-respiratory_data <- readRDS("data/respiratory_data.rds")
+# Load data
+respiratory_data <- readRDS("data/respiratory_data.rds") |> filter(sex == "Persons")
 north_south_data <- readRDS("data/north_south_data.rds")
 mmr_data <- readRDS("data/mmr_data.rds")
 ```
 
 ## Background
 
-This briefing summarises four days of analysis on respiratory mortality and MMR vaccination coverage in England. Data are drawn from the Fingertips public health database (Indicators 40701 and 30309) and cover the period 2001–2024.
+This briefing summarises analysis on respiratory mortality and MMR vaccination coverage in England. Data are drawn from the **Fingertips public health database** (Indicators 40701 and 30309) and the **UKHSA dashboard**, covering 2001 - 2024.
+
+The analysis was structured as a simulated week of work in UKHSA Field Services, responding to a local authority request and identifying regional inequalities and outbreak signals.
+
+------------------------------------------------------------------------
 
 ## Key Findings
 
 | Finding | Detail |
-|------------------------------------|------------------------------------|
-| **North‑South divide** | Northern regions have 14.1 more respiratory deaths per 100,000 than the South – a 48% higher rate |
-| **Statistical significance** | p \< 0.001; Cohen's d = 2.4 (large effect) |
-| **Persistent inequality** | The gap has remained stable for over two decades |
-| **Leicester MMR decline** | Coverage fell from 95.8% (2013) to 88.4% (2024) – an 8‑point drop |
-| **Outbreak signal** | East Midlands showed 80% of weeks exceeding Poisson threshold for C. difficile |
+|--------------------------------------|----------------------------------|
+| **North‑South mortality gap** | Northern regions have 14.1 more respiratory deaths per 100,000 than the South: a **48% higher rate** \[1\]. The gap has persisted for over two decades. |
+| **Statistical significance** | p \< 0.001; Cohen's d = 2.4 (large effect). |
+| **Leicester MMR decline** | Coverage fell from 95.8% (2013) to 88.4% (2024), an **8‑point drop**. Leicester has been below the WHO 95% herd immunity threshold for five consecutive years \[2\]. |
+| **C. difficile outbreak signal** | East Midlands showed **80% of weeks exceeding** the Poisson threshold, warranting investigation. |
+
+------------------------------------------------------------------------
+
+## Interpretation
+
+### North - South Respiratory Mortality Gap
+
+The North has 14.1 additional respiratory deaths per 100,000 compared to the South: a 48% higher rate \[1\]. Asthma + Lung UK's *ICS Respiratory Review* shows that rates of emergency admissions and deaths from lung conditions are much higher in northern areas such as Blackpool and Liverpool, where death rates are over **two times higher** than in more affluent areas like Richmond in London \[3\].
+
+Six out of the 10 areas with the highest rates of emergency admissions and deaths from lung conditions are in the Northwest of England \[1\]. The drivers are structural: higher smoking rates, worse air pollution, poorer housing, and less access to early diagnosis \[6\].
+
+The gap has persisted for over two decades. A Wellcome‑funded project notes that *"there are deep-rooted and long-term regional health inequalities across England, with a two-year gap between the north and the south in how long people are expected to live"* \[5\].
 
 ```{r}
-#| label: key-chart
 #| echo: false
-#| fig-cap: "North-South respiratory mortality gap (2001–2024)"
-#| fig-width: 8
-#| fig-height: 5
+#| fig-cap: "North‑South respiratory mortality gap (2001–2024)"
 
 # Calculate annual means by group
 annual_group <- north_south_data |>
   group_by(region_group, year) |>
-  summarise(
-    mean_rate = mean(mortality_rate, na.rm = TRUE),
-    .groups = "drop"
-  )
+  summarise(mean_rate = mean(mortality_rate, na.rm = TRUE), .groups = "drop")
 
-# Create the chart
 ggplot(annual_group, aes(x = year, y = mean_rate, color = region_group)) +
   geom_line(linewidth = 1.2) +
   scale_color_manual(values = c("North" = "#e74c3c", "South" = "#3498db")) +
   scale_x_continuous(breaks = seq(2000, 2025, 5)) +
-  scale_y_continuous(labels = comma) +
   labs(
-    title = "North - South divide in respiratory mortality",
-    subtitle = "Northern regions consistently higher over two decades",
     x = "Year",
-    y = "Deaths per 100,000",
-    color = "",
-    caption = "Data: Fingertips (Indicator 40701)"
+    y = "Rate per 100,000",
+    color = ""
   ) +
-  theme_minimal(base_size = 12) +
-  theme(
-    legend.position = "bottom",
-    plot.title = element_text(face = "bold"),
-    panel.grid.minor = element_blank()
-  )
+  theme_minimal() +
+  theme(legend.position = "bottom")
 ```
 
-## Interpretation
+### Leicester MMR Decline
 
-The North has **14.1 additional respiratory deaths per 100,000** compared to the South. This difference has persisted for over 20 years and is highly statistically significant (p \< 0.001). The effect size (Cohen's d = 2.4) indicates a large and practically meaningful gap.
+Leicester's MMR coverage declined from 95.8% in 2013 to 88.4% in 2024. This pattern is consistent with regional trends: from 2013/14 to 2023/24, MMR1 coverage in five-year-olds decreased by 7.1 percentage points to 87.0% in Birmingham and by 3.5 percentage points to 91.9% in the West Midlands \[2\].
 
-Leicester's MMR coverage has declined from meeting the WHO 95% target in 2013 to 88.4% in 2024 – an 8‑point drop that leaves the city below the herd immunity threshold.
+The city has been below the WHO 95% herd immunity threshold for five consecutive years. According to UKHSA data, *"no local authority in the West Midlands had coverage exceeding the WHO target of 95% in all the routine childhood immunisations"* \[2\].
 
-The East Midlands showed an outbreak signal for C. difficile, with 80% of comparable weeks exceeding expected levels – warranting investigation.
+This decline is significant because measles outbreaks can occur when coverage falls below 90–95% \[4\]. The WHO recommends 95% coverage for both MMR doses to achieve and maintain herd immunity. In the UK, measles elimination status was lost in 2019 following a resurgence of cases, highlighting the importance of maintaining high vaccination coverage across all communities.
+
+```{r}
+#| echo: false
+#| fig-cap: "MMR coverage: Leicester vs East Midlands vs England"
+
+mmr_key <- mmr_data |>
+  filter(geography %in% c("Leicester", "East Midlands (average)", "England"))
+
+ggplot(mmr_key, aes(x = year, y = coverage, color = geography)) +
+  geom_hline(yintercept = 95, linetype = "dashed", color = "red", alpha = 0.5) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 2) +
+  scale_color_manual(values = c(
+    "Leicester" = "#3498db",
+    "East Midlands (average)" = "#e67e22",
+    "England" = "#2c3e50"
+  )) +
+  scale_y_continuous(labels = function(x) paste0(x, "%"), limits = c(80, 100)) +
+  labs(
+    x = "Year",
+    y = "Coverage (%)",
+    color = ""
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+
+### C. difficile Outbreak Signal
+
+Using a Poisson threshold for sparse data (mean + 1.96 × √mean), the East Midlands showed **80% of weeks** exceeding expected case counts. This level of sustained exceedance warrants line list requests from local trusts and further investigation.
+
+------------------------------------------------------------------------
 
 ## Recommendations
 
-1.  **Target resources to northern regions** – additional investment in respiratory health services is needed
-2.  **Investigate Leicester's MMR decline** – understand local factors behind the 8‑point drop
-3.  **Follow up C. difficile outbreak signal** – request line lists from East Midlands trusts
-4.  **Monitor inequalities quarterly** – track the North‑South gap in routine surveillance
+| Priority | Action |
+|----------------------------------------|--------------------------------|
+| **1** | **Target resources to northern regions**: additional investment in respiratory health services, smoking cessation, and housing improvement \[1\]. Asthma + Lung UK calls for a **£40 million spirometry recovery fund** with more funding to ICSs experiencing higher levels of deprivation \[6\]. |
+| **2** | **Investigate Leicester's MMR decline**: understand local factors behind the 8‑point drop, including vaccine confidence, access, and second‑dose uptake. The government's 10‑year health plan should address childhood immunisation gaps \[2\]. |
+| **3** | **Follow up C. difficile outbreak signal**: request line lists from East Midlands trusts and conduct further analysis. |
+| **4** | **Monitor inequalities quarterly**: track the North‑South gap in routine surveillance \[5\]. |
+
+------------------------------------------------------------------------
 
 ## Limitations
 
@@ -103,17 +139,27 @@ The East Midlands showed an outbreak signal for C. difficile, with 80% of compar
 
 ------------------------------------------------------------------------
 
+## 
+
+## References
+
+1.  Asthma + Lung UK. (2025). *ICS Respiratory Review 2024/25*. Available at: [asthmaandlung.org.uk/healthcare-professionals/ics-respiratory-review](https://www.asthmaandlung.org.uk/healthcare-professionals/ics-respiratory-review)
+
+2.  UK Parliament. (2025). *Vaccination: Children – Written question 36734*. Available at: [questions-statements.parliament.uk/written-questions/detail/2025-03-10/36734](https://questions-statements.parliament.uk/written-questions/detail/2025-03-10/36734)
+
+3.  Asthma + Lung UK. (2023). *Fighting to end the lung health lottery*. Available at: [asthmaandlung.org.uk/blog/campaigning/fighting-end-lung-health-lottery](https://www.asthmaandlung.org.uk/blog/campaigning/fighting-end-lung-health-lottery)
+
+4.  World Health Organization. (2024). *Measles*. Available at: [who.int/news-room/fact-sheets/detail/measles](https://www.who.int/news-room/fact-sheets/detail/measles)
+
+5.  Wellcome. (2026). *North and South: Regional Health Inequalities in England – Grants Awarded*. Available at: [wellcome.org/research-funding/funding-portfolio/funded-grants/north-and-south-regional-health-inequalities](https://wellcome.org/research-funding/funding-portfolio/funded-grants/north-and-south-regional-health-inequalities)
+
+6.  Asthma + Lung UK. (2025). *ICS respiratory review – challenges*. Available at: [asthmaandlung.org.uk/healthcare-professionals/ics-respiratory-review/challenges](https://www.asthmaandlung.org.uk/healthcare-professionals/ics-respiratory-review/challenges)
+
+------------------------------------------------------------------------
+
 **Prepared by:** Marco Sorbona, PhD\
 **Date:** March 2026\
-**Contact:** marco.sorbona\@example.com
+**GitHub:** [MarcoSorbona/ukhsa-respiratory-and-outbreak-surveillance](https://github.com/MarcoSorbona/ukhsa-respiratory-and-outbreak-surveillance)\
+**Live dashboard:** [marcoSorbona.github.io/ukhsa-respiratory-and-outbreak-surveillance/06_day6_dashboard.html](https://marcoSorbona.github.io/ukhsa-respiratory-and-outbreak-surveillance/06_day6_dashboard.html)
 
-```{r}
-#| label: data-notes
-#| include: true
-
-# Data sources:
-# Day 1: Respiratory mortality (Indicator 40701)
-# Day 2: C. difficile (ukhsadatR)
-# Day 3: MMR coverage (Indicator 30309)
-# Day 4: North‑South grouping of Day 1 data
-```
+*Data sources: Day 1: Respiratory mortality (Indicator 40701); Day 2: C. difficile (ukhsadatR); Day 3: MMR coverage (Indicator 30309); Day 4: North‑South grouping of Day 1 data*
