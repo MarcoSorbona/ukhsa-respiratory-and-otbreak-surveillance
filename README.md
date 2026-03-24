@@ -50,6 +50,53 @@ A 6‑day simulated analysis for **UKHSA Field Services**, demonstrating R skill
 
 ------------------------------------------------------------------------
 
+## 📋 How This Project Maps to the UKHSA EO Role
+
+This 6‑day simulation was designed to demonstrate every essential criterion for the Epidemiology and Information Analyst (EO) role at UKHSA.
+
+### Essential Criteria – Demonstrated
+
+| Criterion | Evidence in This Project |
+|----------------------|--------------------------------------------------|
+| Degree or equivalent in data maintenance/analysis | PhD (Imperial) + full R workflow with data caching, version control, and reproducible methods |
+| Analytical skills, basic statistical tests | Welch t‑test, Cohen's d, Poisson thresholds, descriptive statistics, p‑value interpretation |
+| Experience of report writing | One‑page team briefing (Day 5), Quarto documents with clear interpretation for non‑technical audiences |
+| Maintaining/analysing data using common software | R, tidyverse, ggplot2, plotly, leaflet, flexdashboard: full reproducible workflow |
+| Experience and understanding of SOPs | Structured 6‑day workflow, data caching, Git version control, reproducible methods |
+| NHS / epidemiology / public health experience | Real UKHSA data (Fingertips, UKHSA dashboard), respiratory mortality, C. difficile outbreaks, MMR coverage |
+| Good oral and written communication | Plain‑language briefing, stakeholder‑focused outputs (local authority request), interactive dashboard |
+| Quality and accuracy under pressure | 6‑day simulated outbreak response with tight deadlines; all analyses reproducible and documented |
+| Organisation, prioritisation, teamwork | Structured project with clear phases; simulated multidisciplinary briefing; independent work with stakeholder requests |
+| Equality of opportunity | North‑South inequality analysis, health disparities focus, colourblind‑safe visualisations |
+
+### Desirable Criteria – Also Demonstrated
+
+| Criterion | Evidence |
+|--------------------------------------|----------------------------------|
+| Knowledge of statistical/database/mapping tools | R, ggplot2, plotly, leaflet, DT, sf, flexdashboard |
+| Information governance awareness | Use of official UKHSA data sources, data caching, reproducible methods, no redistribution of raw data |
+| Ability to adapt queries for research | Custom queries for respiratory mortality, C. difficile surveillance, MMR coverage, North‑South comparison |
+| Interest in public health epidemiology | Full project focused on respiratory disease, outbreaks, vaccine coverage, and health inequalities |
+
+### Technical Skills Summary
+
+| Skill | Tools & Methods |
+|----------------------|--------------------------------------------------|
+| Data acquisition | `fingertipsR`, `ukhsadatR`, API integration, data caching |
+| Data wrangling | `tidyverse`, string manipulation, fuzzy matching, joins, pivot operations |
+| Statistical analysis | t‑test, Cohen's d, Poisson thresholds, variance ratio, p‑value interpretation |
+| Visualisation | `ggplot2`, `plotly`, `leaflet`, heatmaps, colourblind‑safe palettes (viridis) |
+| Dashboard development | `flexdashboard`, `DT` tables, interactive elements |
+| Reproducibility | Quarto, Git, GitHub, data caching, project structure |
+
+### How to Verify
+
+-   **Live dashboard:** [marcoSorbona.github.io/ukhsa-respiratory-and-outbreak-surveillance/06_day6_dashboard.html](https://marcoSorbona.github.io/ukhsa-respiratory-and-outbreak-surveillance/06_day6_dashboard.html)
+-   **GitHub repository:** [github.com/MarcoSorbona/ukhsa-respiratory-and-outbreak-surveillance](https://github.com/MarcoSorbona/ukhsa-respiratory-and-outbreak-surveillance)
+-   All code is public, documented, and reproducible
+
+---
+
 ## 🔁 Reproducibility
 
 All analyses are fully reproducible:
