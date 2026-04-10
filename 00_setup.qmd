@@ -36,7 +36,7 @@ raw_data <- fingertips_data(IndicatorID = indicator_id, AreaTypeID = 6)
 
 # Clean and save
 respiratory_data <- raw_data |> 
-  select(
+  dplyr::select(
     region = AreaName,
     time_period = Timeperiod,
     value = Value,
@@ -52,6 +52,7 @@ respiratory_data <- raw_data |>
 # Save
 saveRDS(respiratory_data, "data/respiratory_data.rds")
 print("Data ready.")
+saveRDS(respiratory_data, "environmental/data/respiratory_data.rds")
 ```
 
 The `time_period` column contains both single-year estimates ("2024") and three‑year averages ("2022 - 24"). To enable chronological plotting, I extracted the first four digits to create a numeric `year` column. For three‑year ranges, I assigned the value to the start year: a practical choice that maintains time order and allows these period averages to be visualised alongside single‑year estimates without overlap. The original time period is preserved in the data should more detail be needed.
@@ -333,4 +334,172 @@ saveRDS(north_south_data, "data/north_south_data.rds")
 print("North‑South grouped data saved successfully!")
 print(paste("North observations:", nrow(filter(north_south_data, region_group == "North"))))
 print(paste("South observations:", nrow(filter(north_south_data, region_group == "South"))))
+```
+
+## Air Pollution Data (for Environmental Hazard Project)
+
+```{r}
+#| label: download-pollution
+#| include: false
+
+library(openair)
+library(tidyverse)
+library(lubridate)
+
+# Import detailed site information
+all_sites <- importMeta(source = "aurn", all = TRUE)
+
+# Match the zone names exactly as they appear in the data
+english_zones <- c(
+  "Yorkshire & Humberside",
+  "West Midlands",
+  "North West & Merseyside",
+  "Eastern",                
+  "South West",
+  "South East",
+  "East Midlands",
+  "North East",
+  "Greater London"
+)
+
+# Filter to English PM2.5 urban background sites
+pm25_england <- all_sites |> 
+  filter(
+    variable == "PM2.5",
+    site_type == "Urban Background",
+    zone %in% english_zones
+  )
+
+# Record start time
+start_time <- Sys.time()
+print(paste("Download started at:", start_time))
+
+# Get all unique site codes from filtered list
+sites_to_download <- pm25_england$code |> 
+  unique()
+
+# Download all
+pollution_list <- list()
+failed_sites <- c()
+
+for(site_code in sites_to_download) {
+  message("Downloading: ", site_code)
+  
+  site_data <- tryCatch({
+    importUKAQ(
+      site = site_code,
+      year = 2015:2024,
+      pollutant = "pm2.5"
+    )
+  }, error = function(e) NULL)
+  
+  if(!is.null(site_data) && nrow(site_data) > 0) {
+    pollution_list[[site_code]] <- site_data
+    message("Success ", nrow(site_data), " rows")
+  } else {
+    failed_sites <- c(failed_sites, site_code)
+    message("Failed - no data")
+  }
+}
+
+# Combine all successful downloads
+pollution_raw <- bind_rows(pollution_list)
+
+# Save
+saveRDS(pollution_raw, "environmental/data/pollution_raw.rds")
+
+# Summary
+print(paste("Downloaded", length(pollution_list), "of", length(sites_to_download), "sites"))
+print(paste("Total rows:", nrow(pollution_raw)))
+
+if(length(failed_sites) > 0) {
+  print("Failed sites:")
+  print(failed_sites)
+}
+
+# Record end time
+end_time <- Sys.time()
+print(paste("Download completed at:", end_time))
+
+# Calculate duration
+duration <- end_time - start_time
+print(paste("Total time:", round(duration, 2), units(duration)))
+  
+```
+
+```{r}
+# Check how many successful sites per region
+successful_sites <- pollution_raw |> 
+  distinct(code) |> 
+  pull(code)
+
+coverage <- pm25_england |> 
+  filter(code %in% successful_sites) |> 
+  group_by(zone) |> 
+  summarise(
+    sites_successful = n_distinct(code),
+    sites_total = n_distinct(pm25_england$code[pm25_england$zone == zone]),
+    .groups = "drop"
+  ) |> 
+  mutate(
+    success_rate = round(100 * sites_successful / sites_total, 1)
+  )
+
+coverage |> 
+  arrange(desc(success_rate))
+```
+
+```{r}
+# Site-to-Region Lookup
+site_region_lookup <- pm25_england |> 
+  select(code, zone) |> 
+  distinct()
+
+# Save
+saveRDS(site_region_lookup, "environmental/data/site_region_lookup.rds")
+```
+
+## Deprivation Data (for Environmental Hazard Project)
+
+```{r}
+#| label: download-deprivation
+#| include: false
+
+library(fingertipsR)
+library(tidyverse)
+
+# # Get Unique Indicators
+# unique_indicators <- indicators_unique()
+# 
+# # Search for IMD
+# imd_search <- unique_indicators |> 
+#   filter(grepl("deprivation|IMD|multiple deprivation", tolower(IndicatorName)))
+# 
+# View(imd_search)
+  
+
+# Get Index of Multiple Deprivation (IMD) scores for English regions 2019 (2025 not complete)
+imd_2019_raw <- fingertips_data(
+  IndicatorID = 93553,
+  AreaTypeID = 6
+)
+
+# Clean deprivation data
+imd_data <- imd_2019_raw |> 
+  filter(AreaName != "England") |> 
+  select(
+    region = AreaName,
+    imd_score = Value,
+    time_period = Timeperiod
+  ) |> 
+  mutate(
+    region = str_remove(region, " region \\(statistical\\)"),
+    imd_score = round(imd_score, 1)
+  )
+
+# Save to RDS
+saveRDS(imd_data, "environmental/data/imd_data.rds")
+
+print("Deprivation data (IMD 2019) downloaded and saved successfully")
+
 ```

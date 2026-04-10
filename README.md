@@ -9,7 +9,7 @@ A 6‑day simulated analysis for **UKHSA Field Services**, demonstrating R skill
 ## 📁 Project Structure
 
 | Day | Title | Focus | Output |
-|------------------|------------------|------------------|-------------------|
+|------------------|------------------|------------------|------------------|
 | 1 | Routine Surveillance | Respiratory mortality trends | [HTML](https://marcosorbona.github.io/ukhsa-respiratory-and-outbreak-surveillance/01_day1_surveillance.html) |
 | 2 | Outbreak Investigation | C. difficile detection | [HTML](https://marcosorbona.github.io/ukhsa-respiratory-and-outbreak-surveillance/02_day2_outbreak.html) |
 | 3 | Local Authority Request | MMR coverage in Leicester | [HTML](https://marcosorbona.github.io/ukhsa-respiratory-and-outbreak-surveillance/03_day3_data_request.html) |
@@ -22,7 +22,7 @@ A 6‑day simulated analysis for **UKHSA Field Services**, demonstrating R skill
 ## 📊 Data Sources
 
 | Source | Description |
-|----------------------------|--------------------------------------------|
+|------------------------------------|------------------------------------|
 | **Fingertips** | Public health indicators (respiratory mortality, MMR coverage) |
 | **UKHSA Data Dashboard** | Infectious disease surveillance (C. difficile) |
 | **ONS** | Population estimates and boundaries |
@@ -57,7 +57,7 @@ This 6‑day simulation was designed to demonstrate every essential criterion fo
 ### Essential Criteria – Demonstrated
 
 | Criterion | Evidence in This Project |
-|----------------------|--------------------------------------------------|
+|------------------------------------|------------------------------------|
 | Degree or equivalent in data maintenance/analysis | PhD (Imperial) + full R workflow with data caching, version control, and reproducible methods |
 | Analytical skills, basic statistical tests | Welch t‑test, Cohen's d, Poisson thresholds, descriptive statistics, p‑value interpretation |
 | Experience of report writing | One‑page team briefing (Day 5), Quarto documents with clear interpretation for non‑technical audiences |
@@ -72,7 +72,7 @@ This 6‑day simulation was designed to demonstrate every essential criterion fo
 ### Desirable Criteria – Also Demonstrated
 
 | Criterion | Evidence |
-|--------------------------------------|----------------------------------|
+|------------------------------------|------------------------------------|
 | Knowledge of statistical/database/mapping tools | R, ggplot2, plotly, leaflet, DT, sf, flexdashboard |
 | Information governance awareness | Use of official UKHSA data sources, data caching, reproducible methods, no redistribution of raw data |
 | Ability to adapt queries for research | Custom queries for respiratory mortality, C. difficile surveillance, MMR coverage, North‑South comparison |
@@ -81,7 +81,7 @@ This 6‑day simulation was designed to demonstrate every essential criterion fo
 ### Technical Skills Summary
 
 | Skill | Tools & Methods |
-|----------------------|--------------------------------------------------|
+|------------------------------------|------------------------------------|
 | Data acquisition | `fingertipsR`, `ukhsadatR`, API integration, data caching |
 | Data wrangling | `tidyverse`, string manipulation, fuzzy matching, joins, pivot operations |
 | Statistical analysis | t‑test, Cohen's d, Poisson thresholds, variance ratio, p‑value interpretation |
@@ -95,7 +95,7 @@ This 6‑day simulation was designed to demonstrate every essential criterion fo
 -   **GitHub repository:** [github.com/MarcoSorbona/ukhsa-respiratory-and-outbreak-surveillance](https://github.com/MarcoSorbona/ukhsa-respiratory-and-outbreak-surveillance)
 -   All code is public, documented, and reproducible
 
----
+------------------------------------------------------------------------
 
 ## 🔁 Reproducibility
 

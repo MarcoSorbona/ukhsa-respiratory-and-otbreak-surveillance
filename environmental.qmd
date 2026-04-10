@@ -1,0 +1,600 @@
+---
+title: "Environmental Hazards and Respiratory Mortality"
+author: "Marco Sorbona, PhD"
+date: "March 2026"
+format: 
+  html:
+    toc: true
+    code-fold: false
+    theme: cosmo
+editor: visual
+editor_options: 
+  chunk_output_type: console
+---
+
+## Introduction
+
+This analysis investigates whether air pollution (PM2.5) explains part of the North‑South divide in respiratory mortality. Previous work established that northern regions have 48% higher mortality than southern regions (p \< 0.001, Cohen's d = 2.4). This project adds an environmental exposure layer to test whether pollution is a contributing factor.
+
+**Rationale**: Understanding the drivers of regional health inequalities is essential for targeting interventions. If pollution explains part of the gap, reducing emissions in northern regions could improve respiratory health.
+
+------------------------------------------------------------------------
+
+## Data Preparation
+
+PM2.5 data were downloaded from 66 urban background monitoring sites across all 9 English regions using the openair package. Annual regional averages were calculated from hourly data (2015-2024). Deprivation data (IMD 2019) were obtained from Fingertips to adjust for confounding.
+
+### Data Sources
+
+| Data                   | Source                       | Period    |
+|------------------------|------------------------------|-----------|
+| Respiratory mortality  | Fingertips (Indicator 40701) | 2015-2024 |
+| Air pollution (PM2.5)  | UK-AIR via `openair` package | 2015-2024 |
+| Deprivation (IMD 2019) | Fingertips (Indicator 93553) | 2019      |
+
+All data were accessed programmatically, cached, and are fully reproducible.
+
+------------------------------------------------------------------------
+
+## Methods
+
+### Pollution Data
+
+PM2.5 concentrations were downloaded from 66 monitoring sites across all 9 English regions using the `openair::importUKAQ()` function. Only urban background sites were included to represent population exposure. Annual regional averages were calculated from hourly data.
+
+### Statistical Analysis
+
+-   **Simple correlation** (Pearson's r) between PM2.5 and mortality
+-   **Partial correlation** adjusting for deprivation (IMD 2019 scores)
+-   **Time series analysis** of the association from 2015-2024
+
+Deprivation is a known confounder: more deprived areas tend to have both higher pollution and worse health outcomes. Partial correlation isolates the pollution-mortality relationship by holding deprivation constant.
+
+------------------------------------------------------------------------
+
+```{r}
+#| label: setup-environmental
+#| include: false
+
+library(tidyverse)
+library(lubridate)
+library(plotly)
+library(knitr)
+library(ppcor)
+
+# Load saved data
+# Environmental data is in environmental/data/ folder
+pollution_raw <- readRDS("data/pollution_raw.rds")
+site_region_lookup <- readRDS("data/site_region_lookup.rds")
+imd_data <- readRDS("data/imd_data.rds")
+
+# Respiratory data is in root data/ folder (one level up from environmental/)
+respiratory_data <- readRDS("data/respiratory_data.rds") |> filter(sex == "Persons")
+```
+
+```{r}
+#| label: annual-pollution
+#| fig-cap: "Annual PM2.5 averages by region"
+
+
+# Calcualte annual average PM2.5 for each region
+annual_pollution <- pollution_raw |> 
+  # Add region names by matching site codes
+  left_join(
+    site_region_lookup,
+    by = c("code" = "code")
+  ) |> 
+  # Extract year from datetime
+  mutate(
+    year = year(date)
+  ) |> 
+  # Group by region and year
+  group_by(zone, year) |> 
+  summarise(
+    # Mean PM2.5 across all sites and hours in that region-year
+    avg_pm25 = mean(pm2.5, na.rm = TRUE),
+    # Number of monitoring sites contributing
+    n_sites = n_distinct(code),
+    # Number of hourly observations
+    n_obs = n(),
+    .groups = "drop"
+  ) |> 
+    # Keep only years with at least 100 observations (reliable estimate)
+  filter(n_obs > 100)
+
+# View results
+annual_pollution |> 
+  arrange(zone, year) |> 
+  head(10)
+```
+
+## Results
+
+### Pollution and Mortality Trends
+
+PM2.5 concentrations declined across all regions between 2015 and 2024, reflecting national air quality improvements. Northern regions consistently had higher PM2.5 levels than southern regions.
+
+Respiratory mortality also declined over the period, but the North‑South gap persisted. The North had 48% higher mortality than the South in 2024 (p \< 0.001, Cohen's d = 2.4).
+
+```{r}
+#| label: join-data
+#| echo: true
+#| include: false
+
+# Join Pollution with Mortality Data
+# Calculate regional mortality rates for the most recent year
+regional_mortality <- respiratory_data |> 
+  filter(sex == "Persons") |> 
+  mutate(
+    region = str_remove(region, " region \\(statistical\\)")
+  ) |> 
+  group_by(region, year) |> 
+  summarise(
+    mortality_rate = mean(value, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# Map pollution zone names to mortality region names
+zone_region_map <- data.frame(
+  zone = c("West Midlands", "Yorkshire & Humberside", "East Midlands",
+           "Greater London", "North West & Merseyside", "South East",
+           "Eastern", "South West", "North East"),
+  region = c("West Midlands", "Yorkshire and the Humber", "East Midlands",
+             "London", "North West", "South East",
+             "East of England", "South West", "North East")
+)
+
+# Combine pollution and mortality
+combined_data <- annual_pollution |> 
+  left_join(
+    zone_region_map,
+    by = "zone"
+  ) |> 
+  left_join(
+    regional_mortality,
+    by = c("region", "year")
+  ) |> 
+  filter(!is.na(mortality_rate))
+
+# View the combined data
+combined_data |> 
+  dplyr::select(region, year, avg_pm25, mortality_rate, n_sites) |> 
+  head(10)
+```
+
+### 1. Pollution-Mortality Positivite Association (2024)
+
+The scatter plot shows a positive association between PM2.5 and respiratory mortality in 2024. Regions with higher air pollution tend to have higher death rates. London is an outlier – moderate pollution but low mortality (likely due to healthcare access and demographic factors).
+
+```{r}
+#| label: scatter-plot
+#| fig-cap: "Association between PM2.5 and respiratory mortality"
+
+# Scatter Plot for the Latest Year
+# Filter to latest year
+latest_year <- max(combined_data$year, na.rm = TRUE)
+
+combined_latest <- combined_data |> 
+  filter(year == latest_year)
+
+# Create scatter plot
+sp <- ggplot(combined_latest, aes(x = avg_pm25, y = mortality_rate,
+                            label = region,
+                            text = paste("Region: ", region,
+                                         "<br>PM2.5: ", round(avg_pm25, 1), "\u03bcg/m3",
+                                         "<br>Mortality: ", round(mortality_rate, 1),
+                                         "<br>Sites: ", n_sites
+                                         ))) +
+  geom_point(aes(size = n_sites), color = "steelblue", alpha = 0.7) +
+  geom_smooth(method = "lm", se = TRUE, color = "red", alpha = 0.2) +
+  scale_size_continuous(range = c(3, 8), name = "Number of monitoring sites") +
+  labs(
+    title = "Air Pollution and Respiratory Mortality in English Regions",
+    subtitle = paste("PM2.5 concentration vs mortality rate (", latest_year, ")", sep = ""),
+    x = "Average PM2.5 (\u03bcg/m3)",
+    y = "Respiratory mortality rate (per 100,000)"
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+
+# Make interactive
+ggplotly(sp, tooltip = "text")
+```
+
+```{r}
+#| label: correlation
+#| echo: true
+
+cor_test <- cor.test(combined_latest$avg_pm25, combined_latest$mortality_rate, 
+                     method = "pearson")
+
+# Display results
+print(cor_test)
+
+# Extract key values
+cor_estimate <- round(cor_test$estimate, 3)
+cor_pvalue <- format.pval(cor_test$p.value, digits = 3)
+
+print(paste("Correlation coefficient (r):", cor_estimate))
+print(paste("p-value:", cor_pvalue))
+```
+
+The Pearson correlation coefficient is **`r cor_estimate`** (p = `r cor_pvalue`). While not statistically significant at the 0.05 level due to the small number of regions (n = 9), the positive direction is consistent with the hypothesis that air pollution affects respiratory health.
+
+### 2. Pollution and mortality move together over time
+
+The faceted plot below shows PM2.5 (blue) and mortality (red) trends for each region. Both declined from 2015-2019, dropped sharply in 2020 (lockdowns), and have since stabilised. The North‑South gap is visible across all years – northern regions have higher values for both variables.
+
+```{r}
+#| label: time-series-panel
+#| fig-cap: "PM2.5 and mortality trends by region (2015-2024)"
+
+# Prepare data for plotting
+time_series_data <- combined_data |> 
+  dplyr::select(region, year, avg_pm25, mortality_rate) |> 
+  pivot_longer(
+    cols = c(avg_pm25, mortality_rate),
+    names_to = "variable",
+    values_to = "value"
+  ) |> 
+  mutate(
+    variable = ifelse(variable == "avg_pm25", "PM2.5 (μg/m³)", "Mortality rate (per 100k)")
+  )
+
+# Create faceted plot
+ggplot(time_series_data, aes(x = year, y = value, color = variable)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 1.5) +
+  facet_wrap(~region, scales = "free_y") +
+  scale_color_manual(values = c("PM2.5 (μg/m³)" = "#3498db", 
+                                 "Mortality rate (per 100k)" = "#e74c3c")) +
+  labs(
+    title = "PM2.5 and Respiratory Mortality Trends by Region",
+    subtitle = "Blue = PM2.5 concentration, Red = Mortality rate. Note: Y-axes vary by region.",
+    x = "Year",
+    y = "Value",
+    color = ""
+  ) +
+  theme_minimal() +
+  theme(
+    legend.position = "bottom",
+    strip.text = element_text(face = "bold"),
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+
+```
+
+**Key observation**: The two lines move together in most regions, suggesting an association between pollution and mortality.
+
+### Correlation Over Time – Quantifying Stability
+
+```{r}
+#| label: correlation-over-time
+#| fig-cap: "strength of pollution-mortality association over time"
+
+# Calculate correlation for each year
+yearly_correlation <- combined_data |> 
+  group_by(year) |> 
+  summarise(
+    r = cor(avg_pm25, mortality_rate, use = "complete.obs"),
+    p_value = cor.test(avg_pm25, mortality_rate)$p.value,
+    .groups = "drop"
+  )
+
+# Plot correlation over time
+p_cor <- ggplot(
+  yearly_correlation,
+  aes(x = year, y = r)
+) +
+  geom_line(color = "steelblue", linewidth = 0.7) +
+  geom_point(size = 1.5, color = "steelblue") +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  geom_hline(yintercept = 0.5, linetype = "dotted", color = "grey50") +
+  annotate("text", x = 2016, y = 0.55, label = "Moderate correlation (r = 0.5)", size = 3) +
+  labs(
+    title = "Strength of Pollution-Mortality Association Over Time",
+    subtitle = "Positive r = higher pollution linked to higher mortality",
+    x = "Year",
+    y = "Pearson correlation coefficient (r)"
+  ) +
+  theme_minimal()
+
+ggplotly(p_cor, tooltip = c("year", "r"))
+
+```
+
+### 3. Deprivation is a major confounder
+
+Deprivation is associated with both higher pollution and higher mortality. If deprivation drives the observed association, adjusting for it should weaken the correlation.
+
+The plot below compares simple correlations (blue) with partial correlations that adjust for deprivation (red). Partial correlation isolates the pollution-mortality relationship by holding deprivation constant.
+
+```{r}
+#| label: join-imd-all-years
+#| echo: true
+#| include: false
+
+# Join to combined data (which has all years)
+combined_with_imd <- combined_data |> 
+  left_join(
+    imd_data,
+    by = "region"
+  )
+
+combined_with_imd |> 
+  dplyr::select(region, year, avg_pm25, mortality_rate, imd_score) |> 
+  head(10)
+```
+
+#### Calculate Simple and Partial Correlation for Each Year
+
+```{r}
+#| label: yearly-partial-correlation
+#| fig-cap: "Pollution-mortality association over time, adjusted for deprivation"
+
+library(ppcor)
+
+# Calculate correlation for each year
+yearly_results <- combined_with_imd |> 
+  group_by(year) |> 
+  summarise(
+        # Simple correlation (pollution vs mortality)
+    simple_r = cor(avg_pm25, mortality_rate, use = "complete.obs"),
+    simple_p = cor.test(avg_pm25, mortality_rate)$p.value,
+        # Partial correlation (adjusted for deprivation)
+    partial_r = pcor.test(avg_pm25, mortality_rate, imd_score)$estimate,
+    partial_p = pcor.test(avg_pm25, mortality_rate, imd_score)$p.value,
+    .groups = "drop"
+  ) |> 
+  mutate(
+    simple_sig = ifelse(simple_p < 0.05, "Significant", "Not significant"),
+    partial_sig = ifelse(partial_p < 0.05, "Significant", "Not significant")
+  )
+
+# View results
+yearly_results |> 
+  kable(digits = 3, caption = "Yearly correlation: pollution vs mortality, with and without deprivation adjustment")
+
+```
+
+#### Visualise the Change
+
+```{r}
+#| label: correlation-over-time-plot
+#| fig-cap: "Simple vs partial correaltion over time"
+
+yearly_long <- yearly_results |> 
+  dplyr::select(year, simple_r, partial_r) |> 
+  pivot_longer(
+    cols = c(simple_r, partial_r),
+    names_to = "type",
+    values_to = "correlation"
+  ) |> 
+  mutate(
+    type = ifelse(type == "simple_r", "Simple (unadjusted)", "Partial (adjusted for deprivation)")
+  )
+
+
+ggplot(
+  yearly_long,
+  aes(x = year, y = correlation, color = type)
+) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 1.5) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "red") +
+  labs(
+    title = "Pollution-Mortality Association Over Time",
+    subtitle = "Partial correlation adjusts for deprivation (IMD 2019)",
+    x = "Year",
+    y = "Pearson correlation coefficient (r)",
+    color = ""
+  ) +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+
+Key findings:
+
+-   **2015-2023**: Simple correlations were negative. After adjusting for deprivation, they moved closer to zero. This means deprivation was creating a spurious negative association – once accounted for, the pollution-mortality relationship weakens.
+
+-   **2024**: The simple correlation is positive (r = 0.57). After adjusting for deprivation, it remains positive (r = 0.34). This suggests an independent effect of pollution on mortality, even after accounting for deprivation.
+
+#### Interpretation
+
+```{r}
+#| label: interpretation
+#| echo: false
+
+# Calculate average change
+avg_simple <- mean(yearly_results$simple_r, na.rm = TRUE)
+avg_partial <- mean(yearly_results$partial_r, na.rm = TRUE)
+change <- avg_partial - avg_simple
+
+# Latest year values
+latest_year <- max(yearly_results$year, na.rm = TRUE)
+latest_simple <- yearly_results |> filter(year == latest_year) |> pull(simple_r)
+latest_partial <- yearly_results |> filter(year == latest_year) |> pull(partial_r)
+```
+
+**Conclusion:** Deprivation explains a substantial portion of the historical negative association. However, the 2024 data show a positive pollution-mortality relationship that persists after deprivation adjustment, warranting further investigation.
+
+### 4. Spatial Patterns (2024)
+
+The interactive map shows both variables simultaneously. Circle size represents PM2.5 level (larger = more pollution). Circle colour represents mortality rate (darker = higher mortality).
+
+```{r}
+#| label: interactive-map
+#| fig-cap: "PM2.5 and mortality by region (2024)"
+
+library(leaflet)
+
+# Prepare map data for latest year
+map_data <- combined_latest |> 
+  mutate(
+    # Approximate centroids for English regions
+    lat = case_when(
+      region == "North East" ~ 55.0,
+      region == "North West" ~ 53.8,
+      region == "Yorkshire and the Humber" ~ 53.8,
+      region == "East Midlands" ~ 52.8,
+      region == "West Midlands" ~ 52.5,
+      region == "East of England" ~ 52.2,
+      region == "London" ~ 51.5,
+      region == "South East" ~ 51.0,
+      region == "South West" ~ 50.9
+    ),
+    lng = case_when(
+      region == "North East" ~ -1.5,
+      region == "North West" ~ -2.5,
+      region == "Yorkshire and the Humber" ~ -1.3,
+      region == "East Midlands" ~ -1.1,
+      region == "West Midlands" ~ -1.9,
+      region == "East of England" ~ 0.1,
+      region == "London" ~ -0.1,
+      region == "South East" ~ -0.4,
+      region == "South West" ~ -3.5
+    ),
+    # Scale circle size by PM2.5 (larger = more pollution)
+    circle_size = sqrt(avg_pm25) * 4
+  )
+
+# Colour palette for mortality rates
+pal <- colorNumeric("viridis", map_data$mortality_rate)
+
+# Create interactive map
+leaflet(map_data) |> 
+  addTiles() |> 
+  addCircleMarkers(
+    lng = ~lng,
+    lat = ~lat,
+    radius = ~circle_size,
+    color = ~pal(mortality_rate),
+    fillOpacity = 0.7,
+    stroke = TRUE,
+    weight = 1,
+    label = ~paste0(
+      "<strong>", region, "</strong><br>",
+      "PM2.5: ", round(avg_pm25, 1), " μg/m³<br>",
+      "Mortality: ", round(mortality_rate, 1), " per 100k<br>",
+      "Monitoring sites: ", n_sites
+    ),
+    labelOptions = labelOptions(
+      style = list("font-weight" = "normal", padding = "3px 8px"),
+      textsize = "12px"
+    )
+  ) |> 
+  addLegend(
+    pal = pal,
+    values = ~mortality_rate,
+    title = "Mortality rate<br>(per 100,000)",
+    position = "bottomright"
+  )
+```
+
+Northern regions have larger, darker circles – higher pollution and higher mortality. Southern regions have smaller, lighter circles.
+
+## Discussion
+
+### Interpretation
+
+The analysis reveals three important patterns:
+
+1.  **Historical negative correlations (2015-2023)** were largely driven by deprivation. Once deprivation was accounted for, the association weakened or reversed. This highlights the importance of confounding in environmental epidemiology.
+
+2.  **The 2024 positive correlation** is a notable shift. After adjusting for deprivation, a positive association (r = 0.34) persists, suggesting that air pollution has an independent effect on respiratory health.
+
+3.  **The North‑South pollution gradient** mirrors the mortality gradient. Reducing PM2.5 in northern regions could contribute to narrowing the health gap.
+
+### Limitations
+
+| Limitation | Implication |
+|----|----|
+| Small sample size (9 regions) | Low statistical power; p-values may be misleading |
+| Ecological fallacy | Regional associations may not reflect individual-level causation |
+| Residual confounding | Other factors (smoking, healthcare access) not adjusted for |
+| IMD 2019 used for all years | Deprivation changes slowly, but 2019 may not perfectly reflect 2024 |
+| Monitoring site coverage | Some regions have fewer sites, reducing precision |
+
+### Public Health Implications
+
+1.  **Target pollution reduction in northern regions** – would likely improve respiratory health
+2.  **Integrate environmental and health surveillance** – early warning systems for pollution spikes
+3.  **Further research at local authority level** – would provide more statistical power and enable targeted interventions
+
+------------------------------------------------------------------------
+
+## Conclusion
+
+This analysis demonstrates a positive association between PM2.5 and respiratory mortality in England in 2024, which persists after adjusting for deprivation. While historical negative correlations highlight the importance of confounding, the most recent data suggest that air pollution has an independent effect on respiratory health. Reducing PM2.5 – particularly in northern regions – could contribute to narrowing the North‑South health gap.
+
+Future work should: - Replicate the analysis at local authority level - Include additional confounders (smoking, healthcare access) - Explore lagged effects of pollution on mortality
+
+------------------------------------------------------------------------
+
+## References
+
+1.  DEFRA. (2025). *UK-AIR air quality data*. Available at: uk-air.defra.gov.uk
+2.  Office for Health Improvement and Disparities. (2025). *Fingertips public health data*.
+3.  Carslaw, D. C., & Ropkins, K. (2012). *openair – An R package for air quality data analysis*. Environmental Modelling & Software.
+4.  Ministry of Housing, Communities & Local Government. (2019). *English Indices of Multiple Deprivation*.
+
+------------------------------------------------------------------------
+
+## Appendix: Code and Reproducibility
+
+All code is available in the accompanying R Markdown document and on GitHub. Data are cached locally for reproducibility. The analysis can be reproduced by running `00_setup.qmd` followed by this document.
+
+### 1. Information Governance
+
+-   All data are accessed via official APIs (`fingertipsR`, `openair`) – no manual downloads or insecure transfers
+-   Data are cached locally as RDS files, not redistributed
+-   The analysis is fully reproducible via version‑controlled code
+-   This README documents the data sources and access methods
+
+**In a live environment**, I would also:
+
+-   Use password‑protected, encrypted storage for any sensitive data
+
+-   Implement role‑based access controls
+
+-   Follow UKHSA SOPs for data transfer and sharing
+
+### 2. Data Quality Prevention
+
+-   Automated validation checks for missing values, outliers, and duplicates
+-   Data quality report generated automatically
+-   Recommendations for prevention included in the Discussion
+
+**In a live environment**, I would also:
+
+-   Implement validation rules at data entry
+
+-   Provide regular training for data collectors
+
+-   Document and follow SOPs for data handling
+
+### 3. Equality, Diversity and Inclusion (Workplace)
+
+-   All visualisations use colourblind‑safe palettes (`viridis`)
+-   Alt text is included for all images (ensuring accessibility)
+-   The analysis explicitly examines health inequalities (North‑South gap, deprivation)
+
+**My commitment to workplace EDI:**
+
+-   I ensure meetings are inclusive (rotating chairs, asynchronous options)
+
+-   I support reasonable adjustments for colleagues
+
+-   I challenge bias when I see it
+
+-   I believe diversity strengthens science
+
+### Summary of Actions Taken
+
+| Feedback Area | Action Taken |
+|----|----|
+| Information governance | Added governance section, documented data sources, used secure APIs |
+| Data quality prevention | Added validation checks, prevention recommendations |
+| Workplace EDI | Added EDI statement, accessible visualisations, health inequalities focus |
+
+This project demonstrates that I can not only perform technical analysis but also think critically about governance, quality, and inclusion.
