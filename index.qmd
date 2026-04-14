@@ -1,6 +1,6 @@
 ---
 title: "Respiratory Disease Surveillance in England"
-subtitle: "A 6‑Day Simulated Analysis for UKHSA Field Services"
+subtitle: "A Simulated Analysis for UKHSA Field Services"
 author: "Marco Sorbona, PhD"
 date: "March 2026"
 format: 
@@ -11,20 +11,29 @@ format:
 
 ## Overview
 
-This portfolio project simulates a week of work in the **UKHSA Field Services** team, using real public health data from official UK sources.
+This portfolio showcases a series of public health data science projects using real public health data from official UK sources. Each project addresses a distinct question:
+
+- Respiratory mortality surveillance and inequalities
+- C. difficile outbreak detection
+- Local authority immunisation request
+- Statistical testing of North‑South health gap
+- Interactive dashboard for stakeholders
+- Environmental hazards (air pollution and health)
 
 All analyses are fully reproducible. Data are downloaded once via `00_setup.qmd` and cached as RDS files for fast rendering.
 
 ## Project Structure
 
-| Day | Title | Focus | Output |
+| # | Project | Focus | Output |
 |------------------|------------------|------------------|------------------|
 | 1 | Routine Surveillance | Respiratory mortality trends | [HTML](https://marcosorbona.github.io/ukhsa-respiratory-and-outbreak-surveillance/01_day1_surveillance.html) |
 | 2 | Outbreak Investigation | C. difficile detection | [HTML](https://marcosorbona.github.io/ukhsa-respiratory-and-outbreak-surveillance/02_day2_outbreak.html) |
 | 3 | Local Authority Request | MMR coverage in Leicester | [HTML](https://marcosorbona.github.io/ukhsa-respiratory-and-outbreak-surveillance/03_day3_data_request.html) |
 | 4 | Statistical Comparison | North‑South hypothesis test | [HTML](https://marcosorbona.github.io/ukhsa-respiratory-and-outbreak-surveillance/04_day4_statistical.html) |
 | 5 | Team Briefing | One‑page synthesis | [HTML](https://marcosorbona.github.io/ukhsa-respiratory-and-outbreak-surveillance/05_day5_briefing.html) |
-| 6 | Interactive Dashboard | Exploratory data tool | [Dashboard](https://marcosorbona.github.io/ukhsa-respiratory-and-outbreak-surveillance/06_day6_dashboard.html) |
+| 6 | Environmental Hazards | Air pollution and respiratory mortality | [HTML](https://marcosorbona.github.io/ukhsa-respiratory-and-outbreak-surveillance/environmental.html) |
+| 7 | Interactive Dashboard | Exploratory data tool | [Dashboard](https://marcosorbona.github.io/ukhsa-respiratory-and-outbreak-surveillance/06_day6_dashboard.html) |
+
 
 ## Data Sources
 
@@ -34,6 +43,7 @@ All analyses are fully reproducible. Data are downloaded once via `00_setup.qmd`
 | **UKHSA Data Dashboard** | Infectious disease surveillance (C. difficile) |
 | **ONS** | Population estimates and boundaries |
 | **NHS Digital** | Hospital Episode Statistics |
+| **UK-AIR (DEFRA)** | Air pollution data (PM2.5) |
 
 ## Key Findings
 
@@ -41,6 +51,7 @@ All analyses are fully reproducible. Data are downloaded once via `00_setup.qmd`
 -   **Outbreak signal**: East Midlands showed 80% of weeks exceeding C. difficile threshold
 -   **MMR decline**: Leicester fell from 95.8% coverage (2013) to 88.4% (2024)
 -   **Sustained inequality**: The North‑South gap has persisted for over two decades
+- **Environmental link**: Positive association between PM2.5 and mortality in 2024 (r = 0.57), persisting after deprivation adjustment
 
 ## Reproducibility
 

@@ -8,6 +8,8 @@ output:
     vertical_layout: fill
     theme: cosmo
     source_code: embed
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -76,18 +78,21 @@ metrics_table <- data.frame(
     "England respiratory mortality",
     "North vs South difference",
     "Leicester MMR coverage",
-    "C. difficile alert rate"
+    "C. difficile alert rate",
+    "PM2.5 range (2024)"
   ),
   Value = c(
     paste0(round(england_latest, 1), " per 100k"),
     paste0("+", round(north_south_diff, 1), " per 100k"),
     paste0(round(leicester_mmr, 1), "%"),
-    "80%"
+    "80%",
+    "6.8 – 8.1 μg/m³"
   ),
   Year = c(
     latest_year,
     "2001–2024",
     latest_year,
+    "2024",
     "2024"
   )
 )
@@ -104,25 +109,29 @@ data_summary <- data.frame(
     "Respiratory Mortality",
     "North-South Grouped",
     "MMR Coverage",
-    "C. difficile"
+    "C. difficile",
+    "Environmental Hazards"
   ),
   `Time Period` = c(
     "2001-2024",
     "2001-2024",
     "2010-2024",
-    "2023-2024"
+    "2023-2024",
+    "2015-2024"
   ),
   Geography = c(
     "England regions",
     "North vs South",
     "Leicester, East Midlands, England",
-    "UKHSA regions"
+    "UKHSA regions",
+    "English Regions"
   ),
   `Key Indicator` = c(
     "Rate per 100,000",
     "Rate per 100,000",
     "Percentage",
-    "Weekly cases"
+    "Weekly cases",
+    "PM2.5 (μg/m³)"
   ),
   check.names = FALSE
 )
@@ -541,6 +550,173 @@ p_ts_ci <-
   
   ggplotly(p_ts_ci, tooltip = "text") |> 
     layout(legend = list(orientation = "h", xanchor = "center", x = 0.5, y = -0.2))
+```
+
+------------------------------------------------------------------------
+
+# Environmental Hazards
+
+### PM2.5 vs Mortality (2024)
+
+```{r}
+
+# Load environmental data
+# Check if combined_data exists, otherwise load it
+if(!exists("combined_data")) {
+  # Load environmental data components
+  pollution_raw <- readRDS("data/pollution_raw.rds")
+  site_region_lookup <- readRDS("data/site_region_lookup.rds")
+  respiratory_data_env <- readRDS("data/respiratory_data.rds") |> filter(sex == "Persons")
+
+# Calculate annual pollution averages (simplified for dashboard)
+annual_pollution <- pollution_raw |> 
+  left_join(
+    site_region_lookup,
+    by = c("code" = "code")
+    ) |> 
+  mutate(
+    year = lubridate::year(date)
+  ) |> 
+  group_by(zone, year) |> 
+  summarise(
+    avg_pm25 = mean(pm2.5, na.rm = TRUE),
+    n_sites = n_distinct(code),
+    .groups = "drop"
+  ) |> 
+  filter(n_sites >= 3)
+
+# Zone to region mapping
+zone_region_map <- data.frame(
+    zone = c("West Midlands", "Yorkshire & Humberside", "East Midlands",
+             "Greater London", "North West & Merseyside", "South East",
+             "Eastern", "South West", "North East"),
+    region = c("West Midlands", "Yorkshire and the Humber", "East Midlands",
+               "London", "North West", "South East",
+               "East of England", "South West", "North East")
+  )
+
+# Calculate region mortality
+regional_mortality <- respiratory_data_env |> 
+  mutate(
+    region = str_remove(region, " region \\(statistical\\)") 
+  ) |> 
+  group_by(region, year) |> 
+  summarise(
+    mortality_rate = mean(value, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+# Combine
+combined_data <- annual_pollution |> 
+  left_join(
+    zone_region_map,
+    by = "zone"
+  ) |> 
+  left_join(
+    regional_mortality,
+    by = c("region", "year")
+  ) |> 
+  filter(!is.na(mortality_rate))
+}
+
+# Get latest year
+latest_year_env <- max(combined_data$year, na.rm = TRUE)
+combined_latest <- combined_data |> 
+  filter(year == latest_year_env)
+
+# Creater scatter plot
+sp_env <- ggplot(
+  combined_latest,
+  aes(x = avg_pm25, y = mortality_rate,
+      label = region,
+      text = paste("Region: ", region,
+                   "<br>PM2.5: ", round(avg_pm25, 1), " μg/m³",
+                   "<br>Mortality: ", round(mortality_rate, 1),
+                   "<br>Sites: ", n_sites
+                   ))) +
+  geom_point(aes(size = n_sites), color = "steelblue", alpha = 0.7) +
+  geom_smooth(method = "lm", se = TRUE, color = "red", alpha = 0.2) +
+  scale_size_continuous(range = c(3, 8), name = "Monitoring sites") +
+  labs(
+    title = "Air Pollution and Respiratory Mortality",
+    subtitle = paste("PM2.5 concentration vs mortality rate (", latest_year_env, ")", sep = ""),
+    x = "Average PM2.5 (μg/m³)",
+    y = "Respiratory mortality rate (per 100,000)"
+  ) +
+  theme_minimal()+
+  theme(legend.position = "bottom")
+
+ggplotly(sp_env, tooltip = "text")
+```
+
+**Key Finding & Interpretation**
+
+| Measure                                        | Value |
+|------------------------------------------------|-------|
+| Correlation (r)                                | 0.57  |
+| Partial correlation (adjusted for deprivation) | 0.34  |
+
+The scatter plot shows a **positive association** between PM2.5 and respiratory mortality in 2024. Regions with higher air pollution tend to have higher death rates.
+
+-   **Positive correlation (r = 0.57)** – higher pollution associated with higher mortality
+-   **Effect persists after deprivation adjustment (partial r = 0.34)** – an independent effect remains even after accounting for socioeconomic factors
+
+**Important caveat:** Previous years (2015-2023) showed negative correlations, which were largely driven by deprivation. Environmental effects on health take decades to manifest, so the 2024 positive correlation should be interpreted cautiously. This represents a single year snapshot, not a definitive causal relationship.
+
+**Northern regions** have both higher pollution and higher mortality, suggesting that reducing PM2.5 in the North could contribute to narrowing the health gap
+
+### Interactive Map
+
+```{r}
+# Prepare map data
+map_data_env <- combined_latest |> 
+  mutate(
+    lat = case_when(
+      region == "North East" ~ 55.0,
+      region == "North West" ~ 53.8,
+      region == "Yorkshire and the Humber" ~ 53.8,
+      region == "East Midlands" ~ 52.8,
+      region == "West Midlands" ~ 52.5,
+      region == "East of England" ~ 52.2,
+      region == "London" ~ 51.5,
+      region == "South East" ~ 51.0,
+      region == "South West" ~ 50.9
+    ),
+    lng = case_when(
+      region == "North East" ~ -1.5,
+      region == "North West" ~ -2.5,
+      region == "Yorkshire and the Humber" ~ -1.3,
+      region == "East Midlands" ~ -1.1,
+      region == "West Midlands" ~ -1.9,
+      region == "East of England" ~ 0.1,
+      region == "London" ~ -0.1,
+      region == "South East" ~ -0.4,
+      region == "South West" ~ -3.5
+    ),
+    circle_size = sqrt(avg_pm25) * 4
+  )
+
+pal_env <- colorNumeric("viridis", map_data_env$mortality_rate)
+
+leaflet(map_data_env) |> 
+  addTiles() |> 
+  addCircleMarkers(
+    lng = ~lng,
+    lat = ~lat,
+    radius = ~circle_size,
+    color = ~pal_env(mortality_rate),
+    fillOpacity = 0.7,
+    label = ~paste0(
+      "<strong>", region, "</strong><br>",
+      "PM2.5: ", round(avg_pm25, 1), " μg/m³<br>",
+      "Mortality: ", round(mortality_rate, 1), " per 100k")
+  ) |> 
+  addLegend(
+    pal = pal_env,
+    values = ~mortality_rate,
+    title = "Mortality rate<br>(per 100,000)",
+    position = "bottomright"
+  )
 ```
 
 ------------------------------------------------------------------------
