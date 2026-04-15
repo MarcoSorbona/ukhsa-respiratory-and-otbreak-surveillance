@@ -134,6 +134,14 @@ All analyses are fully reproducible:
 # Example: render the dashboard
 quarto::quarto_render("06_day6_dashboard.Rmd")
 ```
+------------------------------------------------------------------------
+
+## Documentation
+
+- [Information Governance](INFO_GOVERNANCE.md)
+- [Data Quality Prevention](DATA_QUALITY.md)
+- [Equality, Diversity and Inclusion](EDI.md)
+
 
 ------------------------------------------------------------------------
 
